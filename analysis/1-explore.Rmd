@@ -1,0 +1,55 @@
+---
+title: "1-explore"
+author: "bernard-liew"
+date: "2021-03-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+# Package
+
+```{r}
+# Helper
+library (tidyverse)
+library (skimr)
+library (DataExplorer)
+library (janitor)
+
+# Import
+library (rio)
+```
+
+# Import
+
+```{r}
+df <- import ("data/neck_pain_database_3001.xlsx", sheet = "DATA")
+keys <- import ("data/neck_pain_database_3001.xlsx", sheet = "LEGEND")
+```
+
+# Tidy
+
+## Convert factors
+
+```{r}
+var_as_factors <- keys[["Type of variable"]] == "Factor"
+
+df <- df %>%
+  mutate_if (var_as_factors, ~.x %>% 
+            as.character() %>% as.factor()) 
+
+```
+
+
+## Explore data
+
+```{r}
+skim (df)
+```
+
+
+
+
+
+
+
