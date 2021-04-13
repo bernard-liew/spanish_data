@@ -15,9 +15,16 @@ library (tidyverse)
 library (skimr)
 library (DataExplorer)
 library (janitor)
+library (rsample)
 
 # Import
 library (rio)
+
+# Missing
+library (VIM)
+library (naniar)
+library (mice)
+library (NADIA)
 ```
 
 # Import
@@ -36,7 +43,10 @@ var_as_factors <- keys[["Type of variable"]] == "Factor"
 
 df <- df %>%
   mutate_if (var_as_factors, ~.x %>% 
-            as.character() %>% as.factor()) 
+            as.character() %>% as.factor()) %>% 
+  rename (imp_np = improvem_NECKpain,
+          imp_ap = improvem_ARMpain,
+          imp_dis = improvem_DISAB)
 
 ```
 
@@ -45,11 +55,65 @@ df <- df %>%
 
 ```{r}
 skim (df)
+
+table (df$improvem_NECKpain, df$improvem_ARMpain, df$improvem_DISAB)
+
+```
+
+```{r}
+visdat::vis_dat(df, sort_type = TRUE)
+visdat::vis_miss(df, cluster = TRUE)
 ```
 
 
+## Missingness
+
+```{r}
+aggr(df)
+
+barMiss(df %>%
+             select (imp_np, imp_dis))
+
+spineMiss(df %>%
+             select (imp_np, imp_dis))
+
+spineMiss(df %>%
+             select (imp_np, imp_ap))
+```
+
+```{r}
+df <- df %>%
+  select (-c(diagn_EMG, diagn_CT))
+
+set.seed(123)
+
+# Save the split information for an 80/20 split of the data
+df_split <- initial_split(df, prop = 0.80, strata = imp_np)
+df_split
+
+train <- training(df_split)
+test  <-  testing(df_split)
+
+```
+
+```{r}
+train_impute <- mice (train)
+
+train2 <- complete (train_impute)
+test_impute <- mice.reuse(train_impute,
+                          test)
+test2 <- test_impute[[1]]
+
+dat <- list (data = df,
+             train = train2,
+             test = test2)
+```
 
 
+## Save 
 
-
+```{r}
+saveRDS(dat,
+        "output/df.RDS")
+```
 

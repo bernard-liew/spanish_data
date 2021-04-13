@@ -1,0 +1,408 @@
+---
+title: "2-prelim_model"
+author: "Bernard"
+date: "2021-03-31"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+# Introduction
+
+```{r}
+# Helper
+library (tidyverse)
+library (dataPreparation)
+
+# ML
+library (mlr3verse)
+library (mlr3)
+library (mlr3learners)
+library (mlr3tuning)
+library (mlr3viz)
+
+
+set.seed(7832)
+lgr::get_logger("mlr3")$set_threshold("warn")
+lgr::get_logger("bbotk")$set_threshold("warn")
+```
+
+# Load data
+
+```{r}
+dat <- readRDS("output/df.RDS") 
+
+train <- dat$train %>%
+  select (-c (imp_ap, imp_dis))
+
+test <- dat$test %>%
+  select (-c (imp_ap, imp_dis))
+```
+
+# Set task
+
+```{r}
+# Set task
+task<- TaskClassif$new (id = "neckpain", backend = train, target = "imp_np")
+task$nrow
+task$feature_names
+task$set_col_roles("ID", roles = "name")
+
+# Set pre proc sets
+poe <- po("encode", method = "one-hot")
+poe$train(list(task))[[1]]$data()
+
+poscale <- po("scale", param_vals = list (center = TRUE, scale = TRUE))
+poscale$train(list(task))[[1]]$data()
+
+
+```
+
+# Set tuning
+
+```{r}
+evals <- trm("none")
+measure <-  msr("classif.auc")
+```
+
+## Simple model 
+
+```{r}
+# Set task
+task<- TaskClassif$new (id = "neckpain", backend = train, target = "imp_np")
+task$nrow
+task$feature_names
+task$set_col_roles("ID", roles = "name")
+
+# Set pre proc sets
+poe <- po("encode", method = "one-hot")
+poe$train(list(task))
+
+poscale <- po("scale", param_vals = list (center = TRUE, scale = TRUE))
+poscale$train(list(task))[[1]]$data()
+
+
+# Set learner
+learner <- lrn("classif.glmnet")
+learner$predict_type <- "prob"
+learner$param_set
+
+
+# Chain pre proc with learner
+grln <- poscale %>>%
+   poe %>>%
+  learner
+
+plot (grln)
+
+graph_learner <- GraphLearner$new(grln)
+
+# short learner id for printing
+graph_learner$id = "graph_learner"
+
+# Set resample
+resampling <- rsmp("cv", folds = 3)
+resampling$instantiate(task)
+
+# Resample
+rr <- resample(task, 
+               graph_learner, 
+               resampling, 
+               store_models = TRUE)
+print(rr)
+rr$aggregate(msr("classif.auc"))
+
+# Tuning
+print(graph_learner$param_set)
+
+graph_learner$param_set$values$classif.glmnet.s  = to_tune(0, 1)
+
+evals <- trm("evals", n_evals = 20)
+measure <-  msr("classif.auc")
+
+instance = TuningInstanceSingleCrit$new(
+  task = task,
+  learner = graph_learner,
+  resampling = resampling,
+  measure = measure,
+  #search_space = search_space,
+  terminator = evals
+)
+instance
+
+tuner <- tnr("grid_search", resolution = 100)
+
+tuner$optimize(instance)
+ 
+print(instance$archive)
+
+instance$result_learner_param_vals
+
+# Nested resampling
+at <-  AutoTuner$new(
+  learner = graph_learner,
+  resampling = resampling,
+  measure = measure,
+  terminator = evals,
+  tuner = tuner,
+  store_models = TRUE
+)
+
+resampling_outer = rsmp("cv", folds = 3)
+
+rr <- resample(task = task, 
+               learner = at, 
+               resampling = resampling_outer)
+
+rr$errors
+
+rr$aggregate()
+
+rr$score()
+```
+
+
+# Set kknn model
+
+
+```{r}
+
+lrn_kknn <- lrn("classif.kknn", id = "kknn", predict_type = "prob")
+
+grln_kknn <- poscale %>>%
+  poe %>>%
+  lrn_kknn
+
+plot (grln_kknn)
+
+grln_kknn_lnr <- GraphLearner$new(grln_kknn)
+grln_kknn_lnr$param_set$values$kknn.k <-  to_tune(1, 10)
+
+at_grln_kknn <-  AutoTuner$new (
+  learner = grln_kknn_lnr,
+  resampling = resampling,
+  measure = measure,
+  terminator = evals,
+  tuner = tnr("grid_search", resolution = 10),
+  store_models = TRUE
+)
+# test learner
+at_grln_kknn$train (task)
+at_grln_kknn$archive
+at_grln_kknn$tuning_result
+
+# Prediction 
+task_tr <- TaskClassif$new (id = "neckpain", backend = test, target = "imp_np")
+task$nrow
+task$feature_names
+task_tr$set_col_roles("ID", roles = "name")
+
+prediction = grln_kknn_lnr$predict(task_tr)
+autoplot(prediction, type = "roc")
+```
+
+# Set xgboost
+
+```{r}
+lrn_xgb <- lrn("classif.xgboost", id = "xgb", predict_type = "prob",  eta = 0.01)
+
+grln_lasso <- poscale %>>%
+  poe %>>%
+  lrn_xgb
+
+plot (grln_xgb)
+
+grln_xgb_lnr <- GraphLearner$new(grln_xgb)
+grln_xgb_lnr$param_set 
+
+ps_xgb <- ParamSet$new(list (
+  ParamInt$new ("xgb.nrounds", lower = 1, upper = 1000),
+  ParamInt$new ("xgb.lambda", lower = 0, upper = 1000),
+  ParamInt$new ("xgb.alpha", lower = 0, upper = 1000)
+))
+
+bind_rows(generate_design_grid(ps_xgb, 3)$transpose())
+
+
+at_grln_xgb <-  AutoTuner$new (
+  learner = grln_xgb_lnr,
+  resampling = resampling,
+  measure = measure,
+  search_space = ps_xgb,
+  terminator = evals,
+  tuner = tnr("grid_search"),
+  store_models = TRUE
+)
+
+# test learner
+at_grln_xgb$train (task, row_ids = 1:100)
+at_grln_xgb$tuning_result
+```
+
+# Set lasso
+
+```{r}
+lrn_lasso <- lrn("classif.glmnet", id = "lasso", predict_type = "prob")
+
+grln_lasso <- poscale %>>%
+  poe %>>%
+  lrn_lasso 
+
+plot (grln_lasso)
+
+grln_lasso_lnr <- GraphLearner$new(grln_lasso)
+grln_lasso_lnr$param_set 
+
+grln_lasso_lnr$param_set$values$lasso.s  <-  to_tune(0, 1)
+
+at_grln_lasso <-  AutoTuner$new (
+  learner = grln_lasso_lnr,
+  resampling = resampling,
+  measure = measure,
+  terminator = evals,
+  tuner = tnr("grid_search", resolution = 100),
+  store_models = TRUE
+)
+
+# test learner
+at_grln_lasso$train (task, row_ids = 1:100)
+
+at_grln_lasso$archive
+at_grln_lasso$tuning_result
+```
+
+# Set random forest
+
+```{r}
+lrn_rf <- lrn("classif.ranger", id = "rf", predict_type = "prob")
+
+grln_rf  <- poscale %>>%
+  poe %>>%
+  lrn_rf 
+
+plot (grln_rf)
+
+grln_rf_lnr <- GraphLearner$new(grln_rf)
+grln_rf_lnr$param_set 
+
+ps_rf <- ParamSet$new(list (
+  ParamInt$new ("rf.mtry", lower = 5, upper = 15),
+  ParamInt$new ("rf.min.node.size", lower = 1, upper = 20)
+))
+
+bind_rows(generate_design_grid(ps_rf, 5)$transpose())
+
+
+at_grln_rf <- AutoTuner$new (
+  learner = grln_rf_lnr,
+  resampling = resampling,
+  measure = measure,
+  terminator = evals,
+  search_space = ps_rf,
+  tuner = tnr("grid_search", resolution = 5),
+  store_models = TRUE
+)
+
+# test learner
+at_grln_rf$train (task, row_ids = 1:100)
+
+at_grln_rf$archive
+at_grln_rf$tuning_result
+```
+
+# Set neural net
+
+```{r}
+lrn_net <- lrn("classif.nnet", id = "nnet", predict_type = "prob")
+
+grln_net <- poscale %>>%
+  poe %>>%
+  lrn_net 
+
+plot (grln_net)
+
+grln_net_lnr <- GraphLearner$new(grln_net)
+grln_net_lnr$param_set 
+
+ps_net <- ParamSet$new(list (
+  ParamInt$new ("nnet.size", lower = 1, upper = 10),
+  ParamDbl$new ("nnet.decay", lower = 0.1, upper = 0.5)
+))
+
+bind_rows(generate_design_grid(ps_net, 5)$transpose())
+
+
+at_grln_net <- AutoTuner$new (
+  learner = grln_net_lnr,
+  resampling = resampling,
+  measure = measure,
+  terminator = evals,
+  search_space = ps_net,
+  tuner = tnr("grid_search", resolution = 3),
+  store_models = TRUE
+)
+
+# test learner
+at_grln_net$train (task, row_ids = 1:100)
+
+at_grln_net$archive
+at_grln_net$tuning_result
+```
+
+# Set support vector machine
+
+```{r}
+lrn_svm <- lrn("classif.svm", id = "svm", type = "C-classification", kernel = "radial", predict_type = "prob")
+
+grln_svm <- poscale %>>%
+  poe %>>%
+  lrn_svm 
+
+plot (grln_svm)
+
+grln_svm_lnr <- GraphLearner$new(grln_svm)
+grln_svm_lnr$param_set 
+
+ps_svm <- ParamSet$new(list (
+  ParamDbl$new ("svm.cost", lower = 0.1, upper = 10),
+  ParamDbl$new ("svm.gamma", lower = 0, upper = 5)
+))
+
+bind_rows(generate_design_grid(ps_svm, 5)$transpose())
+
+
+at_grln_svm <- AutoTuner$new (
+  learner = grln_svm_lnr,
+  resampling = resampling,
+  measure = measure,
+  terminator = evals,
+  search_space = ps_svm,
+  tuner = tnr("grid_search", resolution = 3),
+  store_models = TRUE
+)
+
+# test learner
+at_grln_svm$train (task, row_ids = 1:100)
+
+at_grln_svm$archive
+at_grln_svm$tuning_result
+
+# Check if constant variation column exist
+peek <- poe$train(list(task))[[1]]$data()
+names (peek) [apply (peek, 2, sd) == 0]
+```
+
+# Benchmark
+
+```{r}
+resampling_outer <- rsmp("cv", folds = 3)
+design <-  benchmark_grid(task, 
+                        list(at_grln_kknn, 
+                             at_grln_lasso,
+                             at_grln_xgb,
+                             at_grln_rf), 
+                        resampling_outer)
+
+bmr <- benchmark(design, store_models = TRUE)
+```
+
