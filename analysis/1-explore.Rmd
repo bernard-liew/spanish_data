@@ -27,6 +27,13 @@ library (mice)
 library (NADIA)
 ```
 
+Model for Improvement of neckpain: filter by VAS_neckpain_0 > 1.5 AND 0 missing values for all the obseravtions who entered into the full model.
+
+Model for Improvement of armpain: filter by VAS_armpain_0 > 1.5  AND 0 missing values for all the obseravtions who entered into the full model. 
+
+Model for Improvement of disability: filter by disability_0 >= 7  AND 0 missing values for all the obseravtions who entered into the full model. 
+
+
 # Import
 
 ```{r}

@@ -12,15 +12,13 @@ editor_options:
 ```{r}
 # Helper
 library (tidyverse)
-library (dataPreparation)
 
 # ML
-library (mlr3verse)
 library (mlr3)
 library (mlr3learners)
 library (mlr3tuning)
 library (mlr3viz)
-
+library (mlr3fselect)
 
 set.seed(7832)
 lgr::get_logger("mlr3")$set_threshold("warn")
@@ -37,16 +35,25 @@ train <- dat$train %>%
 
 test <- dat$test %>%
   select (-c (imp_ap, imp_dis))
+
+comb <- bind_rows(train, test)
+train_id <- 1: nrow (train)
+test_id <- (nrow (train) + 1): nrow (comb)
+
 ```
 
 # Set task
 
 ```{r}
-# Set task
-task<- TaskClassif$new (id = "neckpain", backend = train, target = "imp_np")
+# Set training task
+task<- TaskClassif$new (id = "neckpain", backend = comb, target = "imp_np")
 task$nrow
 task$feature_names
 task$set_col_roles("ID", roles = "name")
+
+# # Set test task 
+# task_tr <- TaskClassif$new (id = "neckpain", backend = test, target = "imp_np")
+# task_tr$set_col_roles("ID", roles = "name")
 
 # Set pre proc sets
 poe <- po("encode", method = "one-hot")
@@ -63,142 +70,105 @@ poscale$train(list(task))[[1]]$data()
 ```{r}
 evals <- trm("none")
 measure <-  msr("classif.auc")
+measures <- list (msr("classif.auc"), 
+                  msr("classif.acc"),
+                  msr("classif.tpr"),
+                  msr("classif.fpr"),
+                  msr("classif.fnr"),
+                  msr("classif.tnr"))
+# Set resample
+cv_inner <- rsmp("cv", folds = 5)
+cv_outer <- rsmp("cv", folds = 3)
 ```
 
-## Simple model 
+# Set logistic regression model
+
 
 ```{r}
-# Set task
-task<- TaskClassif$new (id = "neckpain", backend = train, target = "imp_np")
-task$nrow
-task$feature_names
-task$set_col_roles("ID", roles = "name")
+# Set learner with type proability
+lrn_logreg <- lrn("classif.log_reg", id = "log", predict_type = "prob")
 
-# Set pre proc sets
-poe <- po("encode", method = "one-hot")
-poe$train(list(task))
+# Graph with factor encoding and scaling
+grln_logreg <- poscale %>>%
+  poe %>>%
+  lrn_logreg 
 
-poscale <- po("scale", param_vals = list (center = TRUE, scale = TRUE))
-poscale$train(list(task))[[1]]$data()
+plot (grln_logreg)
+grln_logreg_lnr <- GraphLearner$new(grln_logreg)
 
-
-# Set learner
-learner <- lrn("classif.glmnet")
-learner$predict_type <- "prob"
-learner$param_set
-
-
-# Chain pre proc with learner
-grln <- poscale %>>%
-   poe %>>%
-  learner
-
-plot (grln)
-
-graph_learner <- GraphLearner$new(grln)
-
-# short learner id for printing
-graph_learner$id = "graph_learner"
-
-# Set resample
-resampling <- rsmp("cv", folds = 3)
-resampling$instantiate(task)
-
-# Resample
-rr <- resample(task, 
-               graph_learner, 
-               resampling, 
-               store_models = TRUE)
-print(rr)
-rr$aggregate(msr("classif.auc"))
-
-# Tuning
-print(graph_learner$param_set)
-
-graph_learner$param_set$values$classif.glmnet.s  = to_tune(0, 1)
-
-evals <- trm("evals", n_evals = 20)
-measure <-  msr("classif.auc")
-
-instance = TuningInstanceSingleCrit$new(
-  task = task,
-  learner = graph_learner,
-  resampling = resampling,
-  measure = measure,
-  #search_space = search_space,
-  terminator = evals
-)
-instance
-
-tuner <- tnr("grid_search", resolution = 100)
-
-tuner$optimize(instance)
- 
-print(instance$archive)
-
-instance$result_learner_param_vals
-
-# Nested resampling
-at <-  AutoTuner$new(
-  learner = graph_learner,
-  resampling = resampling,
+# Set autotuner
+at_grln_logreg <-  AutoFSelector$new(
+  learner = grln_logreg_lnr, 
+  resampling = cv_inner, 
   measure = measure,
   terminator = evals,
-  tuner = tuner,
-  store_models = TRUE
-)
+  fselect = fs("sequential"),
+  store_models = TRUE)
 
-resampling_outer = rsmp("cv", folds = 3)
+# Nested resampling for internal validation
+rr_logreg <- resample(task, 
+                    at_grln_logreg, 
+                    cv_outer, 
+                    store_models = FALSE)
 
-rr <- resample(task = task, 
-               learner = at, 
-               resampling = resampling_outer)
+# Train learner
+at_grln_logreg$train (task, row_ids = train_id)
+at_grln_logreg$model
 
-rr$errors
+# Predict learner
+prediction = at_grln_logreg$predict(task, row_ids = test_id)
+autoplot(prediction, type = "roc")
+prediction$score (measures)
 
-rr$aggregate()
 
-rr$score()
 ```
-
 
 # Set kknn model
 
 
 ```{r}
-
+# Set learner with type proability
 lrn_kknn <- lrn("classif.kknn", id = "kknn", predict_type = "prob")
 
+# Graph with factor encoding and scaling
 grln_kknn <- poscale %>>%
   poe %>>%
-  lrn_kknn
+  lrn_kknn 
 
 plot (grln_kknn)
-
 grln_kknn_lnr <- GraphLearner$new(grln_kknn)
-grln_kknn_lnr$param_set$values$kknn.k <-  to_tune(1, 10)
 
-at_grln_kknn <-  AutoTuner$new (
+# Tuning
+grln_kknn_lnr$param_set$values$kknn.k <-  to_tune(1, 10)
+#grln_kknn_lnr$param_set$values$threshold.thresholds <-  to_tune(p_dbl (0,1))
+
+# Set autotuner
+at_grln_kknn <-  AutoTuner$new(
   learner = grln_kknn_lnr,
-  resampling = resampling,
+  resampling = cv_inner,
   measure = measure,
   terminator = evals,
-  tuner = tnr("grid_search", resolution = 10),
+  tuner = tnr("gensa"),
   store_models = TRUE
 )
-# test learner
-at_grln_kknn$train (task)
+
+# Nested resampling for internal validation
+rr_kknn <- resample(task, 
+                    at_grln_kknn, 
+                    cv_outer, 
+                    store_models = FALSE)
+
+# Train learner
+at_grln_kknn$train (task, row_ids = train_id)
 at_grln_kknn$archive
 at_grln_kknn$tuning_result
 
-# Prediction 
-task_tr <- TaskClassif$new (id = "neckpain", backend = test, target = "imp_np")
-task$nrow
-task$feature_names
-task_tr$set_col_roles("ID", roles = "name")
+#grln_kknn_lnr$param_set$values <- at_grln_kknn$tuning_instance$result_learner_param_vals
 
-prediction = grln_kknn_lnr$predict(task_tr)
+# Predict learner
+prediction = at_grln_kknn$predict(task, row_ids = test_id)
 autoplot(prediction, type = "roc")
+
 ```
 
 # Set xgboost
@@ -206,7 +176,7 @@ autoplot(prediction, type = "roc")
 ```{r}
 lrn_xgb <- lrn("classif.xgboost", id = "xgb", predict_type = "prob",  eta = 0.01)
 
-grln_lasso <- poscale %>>%
+grln_xgb <- poscale %>>%
   poe %>>%
   lrn_xgb
 
@@ -216,27 +186,48 @@ grln_xgb_lnr <- GraphLearner$new(grln_xgb)
 grln_xgb_lnr$param_set 
 
 ps_xgb <- ParamSet$new(list (
-  ParamInt$new ("xgb.nrounds", lower = 1, upper = 1000),
-  ParamInt$new ("xgb.lambda", lower = 0, upper = 1000),
-  ParamInt$new ("xgb.alpha", lower = 0, upper = 1000)
+  ParamDbl$new ("xgb.nrounds", lower = 1, upper = 1000),
+  ParamDbl$new ("xgb.lambda", lower = 0, upper = 1000),
+  ParamDbl$new ("xgb.gamma", lower = 0, upper = 1000),
+  ParamDbl$new ("xgb.alpha", lower = 0, upper = 1000)
 ))
+
+ps_xgb$trafo = function(x, param_set) {
+  x$xgb.nrounds = as.integer (x$xgb.nrounds)
+  x$xgb.lambda = as.integer (x$xgb.lambda)
+  x$xgb.alpha = as.integer (x$xgb.alpha)
+  x
+}
 
 bind_rows(generate_design_grid(ps_xgb, 3)$transpose())
 
 
 at_grln_xgb <-  AutoTuner$new (
   learner = grln_xgb_lnr,
-  resampling = resampling,
+  resampling = cv_inner,
   measure = measure,
   search_space = ps_xgb,
   terminator = evals,
-  tuner = tnr("grid_search"),
+  tuner = tnr("gensa"),
   store_models = TRUE
 )
 
+# Nested resampling for internal validation
+rr_xgb <- resample(task, 
+                    at_grln_xgb, 
+                    cv_outer, 
+                    store_models = FALSE)
+
+
 # test learner
-at_grln_xgb$train (task, row_ids = 1:100)
+at_grln_xgb$train (task, row_ids = train_id)
+at_grln_xgb$archive
 at_grln_xgb$tuning_result
+
+prediction = at_grln_xgb$predict(task, row_ids = test_id)
+prediction$score (measures)
+autoplot(prediction, type = "roc")
+
 ```
 
 # Set lasso
@@ -257,18 +248,27 @@ grln_lasso_lnr$param_set$values$lasso.s  <-  to_tune(0, 1)
 
 at_grln_lasso <-  AutoTuner$new (
   learner = grln_lasso_lnr,
-  resampling = resampling,
+  resampling = cv_inner,
   measure = measure,
   terminator = evals,
   tuner = tnr("grid_search", resolution = 100),
   store_models = TRUE
 )
 
-# test learner
-at_grln_lasso$train (task, row_ids = 1:100)
+# Nested resampling for internal validation
+rr_lasso <- resample(task, 
+                    at_grln_lasso, 
+                    cv_outer, 
+                    store_models = FALSE)
 
+# test learner
+at_grln_lasso$train (task, row_ids = train_id)
 at_grln_lasso$archive
 at_grln_lasso$tuning_result
+
+prediction = at_grln_lasso$predict(task, row_ids = test_id)
+prediction$score (measures)
+autoplot(prediction, type = "roc")
 ```
 
 # Set random forest
@@ -287,7 +287,8 @@ grln_rf_lnr$param_set
 
 ps_rf <- ParamSet$new(list (
   ParamInt$new ("rf.mtry", lower = 5, upper = 15),
-  ParamInt$new ("rf.min.node.size", lower = 1, upper = 20)
+  ParamInt$new ("rf.min.node.size", lower = 1, upper = 20),
+  ParamDbl$new ("rf.sample.fraction", lower = 0.5, upper = 1)
 ))
 
 bind_rows(generate_design_grid(ps_rf, 5)$transpose())
@@ -295,7 +296,7 @@ bind_rows(generate_design_grid(ps_rf, 5)$transpose())
 
 at_grln_rf <- AutoTuner$new (
   learner = grln_rf_lnr,
-  resampling = resampling,
+  resampling = cv_inner,
   measure = measure,
   terminator = evals,
   search_space = ps_rf,
@@ -303,11 +304,20 @@ at_grln_rf <- AutoTuner$new (
   store_models = TRUE
 )
 
-# test learner
-at_grln_rf$train (task, row_ids = 1:100)
+# Nested resampling for internal validation
+rr_rf <- resample(task, 
+                    at_grln_rf, 
+                    cv_outer, 
+                    store_models = FALSE)
 
+# test learner
+at_grln_rf$train (task, row_ids = train_id)
 at_grln_rf$archive
 at_grln_rf$tuning_result
+
+prediction = at_grln_rf$predict(task, row_ids = test_id)
+prediction$score (measures)
+autoplot(prediction, type = "roc")
 ```
 
 # Set neural net
@@ -338,15 +348,24 @@ at_grln_net <- AutoTuner$new (
   measure = measure,
   terminator = evals,
   search_space = ps_net,
-  tuner = tnr("grid_search", resolution = 3),
+  tuner = tnr("grid_search", resolution = 10),
   store_models = TRUE
 )
 
-# test learner
-at_grln_net$train (task, row_ids = 1:100)
+# Nested resampling for internal validation
+rr_net <- resample(task, 
+                    at_grln_net, 
+                    cv_outer, 
+                    store_models = FALSE)
 
+# test learner
+at_grln_net$train (task, row_ids = train_id)
 at_grln_net$archive
 at_grln_net$tuning_result
+
+prediction = at_grln_net$predict(task, row_ids = test_id)
+prediction$score (measures)
+autoplot(prediction, type = "roc")
 ```
 
 # Set support vector machine
