@@ -19,6 +19,7 @@ library (mlr3learners)
 library (mlr3tuning)
 library (mlr3viz)
 library (mlr3fselect)
+library (mlr3pipelines)
 
 set.seed(7832)
 lgr::get_logger("mlr3")$set_threshold("warn")
@@ -30,11 +31,8 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 ```{r}
 dat <- readRDS("output/df.RDS") 
 
-train <- dat$train %>%
-  select (-c (imp_ap, imp_dis))
-
-test <- dat$test %>%
-  select (-c (imp_ap, imp_dis))
+train <- dat$df_list$ap$train_imp
+test <- dat$df_list$ap$test_imp
 
 comb <- bind_rows(train, test)
 train_id <- 1: nrow (train)
@@ -46,7 +44,7 @@ test_id <- (nrow (train) + 1): nrow (comb)
 
 ```{r}
 # Set training task
-task<- TaskClassif$new (id = "neckpain", backend = comb, target = "imp_np")
+task<- TaskClassif$new (id = "armpain", backend = comb, target = "outcome")
 task$nrow
 task$feature_names
 task$set_col_roles("ID", roles = "name")
@@ -90,7 +88,7 @@ lrn_logreg <- lrn("classif.log_reg", id = "log", predict_type = "prob")
 
 # Graph with factor encoding and scaling
 grln_logreg <- poscale %>>%
-  poe %>>%
+  #poe %>>%
   lrn_logreg 
 
 plot (grln_logreg)
@@ -101,9 +99,12 @@ at_grln_logreg <-  AutoFSelector$new(
   learner = grln_logreg_lnr, 
   resampling = cv_inner, 
   measure = measure,
-  terminator = evals,
-  fselect = fs("sequential"),
+  terminator = trm("stagnation", iters = 5),
+  fselect = fs("sequential", strategy = "sbs"),
   store_models = TRUE)
+
+# Runs the outer loop sequentially and the inner loop in parallel
+future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
 rr_logreg <- resample(task, 
@@ -111,9 +112,11 @@ rr_logreg <- resample(task,
                     cv_outer, 
                     store_models = FALSE)
 
+future::plan("multisession")
 # Train learner
 at_grln_logreg$train (task, row_ids = train_id)
-at_grln_logreg$model
+as.data.table (at_grln_logreg$archive)
+at_grln_logreg$fselect_result
 
 # Predict learner
 prediction = at_grln_logreg$predict(task, row_ids = test_id)
@@ -148,9 +151,12 @@ at_grln_kknn <-  AutoTuner$new(
   resampling = cv_inner,
   measure = measure,
   terminator = evals,
-  tuner = tnr("gensa"),
+  tuner = tnr("grid_search", resolution = 10),
   store_models = TRUE
 )
+
+# Runs the outer loop sequentially and the inner loop in parallel
+future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
 rr_kknn <- resample(task, 
@@ -158,6 +164,7 @@ rr_kknn <- resample(task,
                     cv_outer, 
                     store_models = FALSE)
 
+future::plan("multisession")
 # Train learner
 at_grln_kknn$train (task, row_ids = train_id)
 at_grln_kknn$archive
@@ -167,6 +174,7 @@ at_grln_kknn$tuning_result
 
 # Predict learner
 prediction = at_grln_kknn$predict(task, row_ids = test_id)
+prediction$score (measures)
 autoplot(prediction, type = "roc")
 
 ```
@@ -211,6 +219,8 @@ at_grln_xgb <-  AutoTuner$new (
   tuner = tnr("gensa"),
   store_models = TRUE
 )
+# Runs the outer loop sequentially and the inner loop in parallel
+future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
 rr_xgb <- resample(task, 
@@ -218,7 +228,7 @@ rr_xgb <- resample(task,
                     cv_outer, 
                     store_models = FALSE)
 
-
+future::plan("multisession")
 # test learner
 at_grln_xgb$train (task, row_ids = train_id)
 at_grln_xgb$archive
@@ -254,6 +264,8 @@ at_grln_lasso <-  AutoTuner$new (
   tuner = tnr("grid_search", resolution = 100),
   store_models = TRUE
 )
+# Runs the outer loop sequentially and the inner loop in parallel
+future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
 rr_lasso <- resample(task, 
@@ -261,6 +273,7 @@ rr_lasso <- resample(task,
                     cv_outer, 
                     store_models = FALSE)
 
+future::plan("multisession")
 # test learner
 at_grln_lasso$train (task, row_ids = train_id)
 at_grln_lasso$archive
@@ -303,6 +316,8 @@ at_grln_rf <- AutoTuner$new (
   tuner = tnr("grid_search", resolution = 5),
   store_models = TRUE
 )
+# Runs the outer loop sequentially and the inner loop in parallel
+future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
 rr_rf <- resample(task, 
@@ -310,6 +325,7 @@ rr_rf <- resample(task,
                     cv_outer, 
                     store_models = FALSE)
 
+future::plan("multisession")
 # test learner
 at_grln_rf$train (task, row_ids = train_id)
 at_grln_rf$archive
@@ -344,13 +360,15 @@ bind_rows(generate_design_grid(ps_net, 5)$transpose())
 
 at_grln_net <- AutoTuner$new (
   learner = grln_net_lnr,
-  resampling = resampling,
+  resampling = cv_inner,
   measure = measure,
   terminator = evals,
   search_space = ps_net,
   tuner = tnr("grid_search", resolution = 10),
   store_models = TRUE
 )
+# Runs the outer loop sequentially and the inner loop in parallel
+future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
 rr_net <- resample(task, 
@@ -358,6 +376,7 @@ rr_net <- resample(task,
                     cv_outer, 
                     store_models = FALSE)
 
+future::plan("multisession")
 # test learner
 at_grln_net$train (task, row_ids = train_id)
 at_grln_net$archive
@@ -396,32 +415,52 @@ at_grln_svm <- AutoTuner$new (
   measure = measure,
   terminator = evals,
   search_space = ps_svm,
-  tuner = tnr("grid_search", resolution = 3),
+  tuner = tnr("grid_search", resolution = 10),
   store_models = TRUE
 )
+# Runs the outer loop sequentially and the inner loop in parallel
+future::plan(list("sequential", "multisession"))
 
+# Nested resampling for internal validation
+rr_svm <- resample(task, 
+                    at_grln_svm, 
+                    cv_outer, 
+                    store_models = FALSE)
+
+future::plan("multisession")
 # test learner
-at_grln_svm$train (task, row_ids = 1:100)
-
+at_grln_svm$train (task, row_ids = train_id)
 at_grln_svm$archive
 at_grln_svm$tuning_result
 
-# Check if constant variation column exist
-peek <- poe$train(list(task))[[1]]$data()
-names (peek) [apply (peek, 2, sd) == 0]
+prediction = at_grln_svm$predict(task, row_ids = test_id)
+prediction$score (measures)
+autoplot(prediction, type = "roc")
 ```
 
-# Benchmark
 
+# Save files
 ```{r}
-resampling_outer <- rsmp("cv", folds = 3)
-design <-  benchmark_grid(task, 
-                        list(at_grln_kknn, 
-                             at_grln_lasso,
-                             at_grln_xgb,
-                             at_grln_rf), 
-                        resampling_outer)
+rsmp_list <- list (rr_logreg = rr_logreg,
+                   rr_kknn = rr_kkn,
+                   rr_xgb = rr_xgb,
+                   rr_lasso = rr_lasso,
+                   rr_rf = rr_rf,
+                   rr_net = rr_net,
+                   rr_svm = rr_svm)
 
-bmr <- benchmark(design, store_models = TRUE)
+model_list <- list (at_grln_logreg = at_grln_logreg,
+                   at_grln_kknn = at_grln_kkn,
+                   at_grln_xgb = at_grln_xgb,
+                   at_grln_lasso = at_grln_lasso,
+                   at_grln_rf = at_grln_rf,
+                   at_grln_net = at_grln_net,
+                   at_grln_svm = at_grln_svm)
+
+saveRDS (list (rsmp_list = rsmp_list,
+               model_list = model_list),
+         "output/np_result.RDS")
+
 ```
+
 
