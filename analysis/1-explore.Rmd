@@ -89,31 +89,74 @@ spineMiss(df %>%
 ```
 
 ```{r}
-df <- df %>%
-  select (-c(diagn_EMG, diagn_CT))
+np <- df %>% 
+  select (-c(imp_ap, imp_dis)) %>%
+  purrr::discard(~sum(is.na(.x))/length(.x)* 100 >= 50) %>%
+  rename (outcome = imp_np)
 
-set.seed(123)
+ap <- df %>% 
+  select (-c(imp_np, imp_dis)) %>%
+  purrr::discard(~sum(is.na(.x))/length(.x)* 100 >= 50)%>%
+  rename (outcome = imp_ap)
+
+dis <- df %>% 
+  select (-c(imp_np, imp_ap)) %>%
+  purrr::discard(~sum(is.na(.x))/length(.x)* 100 >= 60)%>%
+  rename (outcome = imp_dis)
+
+df_list <- list (np = vector ("list"),
+                 ap = vector ("list"),
+                 dis = vector ("list"))
+
+df_list$np$orig <- np
+df_list$ap$orig <- ap
+df_list$dis$orig <- dis
+```
+
+
+
+```{r}
+
+for (n in seq_along (df_list)) {
+  set.seed(123)
+  
+  df_split <- initial_split(df_list[[n]]$orig, prop = 0.80, strata = outcome)
+  train <- training(df_split)
+  test  <-  testing(df_split)
+  
+  df_list[[n]]$train <- train
+  df_list[[n]]$test <- test
+}
+
+
 
 # Save the split information for an 80/20 split of the data
-df_split <- initial_split(df, prop = 0.80, strata = imp_np)
-df_split
 
-train <- training(df_split)
-test  <-  testing(df_split)
 
 ```
 
 ```{r}
-train_impute <- mice (train)
 
-train2 <- complete (train_impute)
-test_impute <- mice.reuse(train_impute,
-                          test)
-test2 <- test_impute[[1]]
+for (n in seq_along (df_list)) {
+  
+  train_impute <- mice (df_list[[n]]$train)
+  df_list[[n]]$train_imp <- complete (train_impute)
+  
+  test_impute <- mice.reuse(train_impute,
+                           df_list[[n]]$test)
 
+  df_list[[n]]$test_imp <- test_impute[[1]]
+}
+
+# train_impute <- mice (train)
+# 
+# train2 <- complete (train_impute)
+# test_impute <- mice.reuse(train_impute,
+#                           test)
+# test2 <- test_impute[[1]]
+# 
 dat <- list (data = df,
-             train = train2,
-             test = test2)
+             df_list = df_list)
 ```
 
 
