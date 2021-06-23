@@ -20,6 +20,7 @@ library (mlr3tuning)
 library (mlr3viz)
 library (mlr3fselect)
 library (mlr3pipelines)
+library (mlr3hyperband)
 
 set.seed(7832)
 lgr::get_logger("mlr3")$set_threshold("warn")
@@ -193,19 +194,37 @@ plot (grln_xgb)
 grln_xgb_lnr <- GraphLearner$new(grln_xgb)
 grln_xgb_lnr$param_set 
 
-ps_xgb <- ParamSet$new(list (
-  ParamDbl$new ("xgb.nrounds", lower = 1, upper = 1000),
-  ParamDbl$new ("xgb.lambda", lower = 0, upper = 1000),
-  ParamDbl$new ("xgb.gamma", lower = 0, upper = 1000),
-  ParamDbl$new ("xgb.alpha", lower = 0, upper = 1000)
-))
-
+ps_xgb = ParamSet$new(
+    params = list(
+        ParamDbl$new("xgb.eta", lower = 0.001, upper = 0.2),
+        ParamDbl$new("xgb.max_depth", lower = 1, upper = 20),
+        ParamDbl$new("xgb.nrounds", lower = 100, upper = 5000, tags = "budget"),
+        ParamDbl$new("xgb.colsample_bytree", lower = 0.5, upper = 1),
+        ParamDbl$new("xgb.colsample_bylevel", lower = 0.5, upper = 1),
+        ParamDbl$new("xgb.subsample", lower = 0.5, upper = 1),
+        ParamDbl$new("xgb.gamma", lower = -7, upper = 6),
+        ParamDbl$new("xgb.lambda", lower = -10, upper = 10),
+        ParamDbl$new("xgb.alpha", lower = -10, upper = 10)
+    ))
 ps_xgb$trafo = function(x, param_set) {
-  x$xgb.nrounds = as.integer (x$xgb.nrounds)
-  x$xgb.lambda = as.integer (x$xgb.lambda)
-  x$xgb.alpha = as.integer (x$xgb.alpha)
-  x
+    idx_gamma = grep("gamma", names(x))
+    x[[idx_gamma]] = 2^(x[[idx_gamma]])
+    
+    idx_lambda = grep("lambda", names(x))
+    x[[idx_lambda]] = as.integer (2^(x[[idx_lambda]]))
+    
+    idx_alpha = grep("alpha", names(x))
+    x[[idx_alpha]] = as.integer (2^(x[[idx_alpha]]))
+    
+    idx_nrounds = grep("nrounds", names(x))
+    x[[idx_nrounds]] = as.integer (x[[idx_nrounds]])
+    
+    idx_depth = grep("depth", names(x))
+    x[[idx_depth]] = as.integer (x[[idx_depth]])
+
+    x
 }
+
 
 bind_rows(generate_design_grid(ps_xgb, 3)$transpose())
 
@@ -216,7 +235,7 @@ at_grln_xgb <-  AutoTuner$new (
   measure = measure,
   search_space = ps_xgb,
   terminator = evals,
-  tuner = tnr("gensa"),
+  tuner = tnr("hyperband", eta = 5),
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
