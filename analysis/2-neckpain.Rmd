@@ -111,7 +111,7 @@ future::plan(list("sequential", "multisession"))
 rr_logreg <- resample(task, 
                     at_grln_logreg, 
                     cv_outer, 
-                    store_models = FALSE)
+                    store_models = TRUE)
 
 future::plan("multisession")
 # Train learner
@@ -163,7 +163,7 @@ future::plan(list("sequential", "multisession"))
 rr_kknn <- resample(task, 
                     at_grln_kknn, 
                     cv_outer, 
-                    store_models = FALSE)
+                    store_models = TRUE)
 
 future::plan("multisession")
 # Train learner
@@ -245,7 +245,7 @@ future::plan(list("sequential", "multisession"))
 rr_xgb <- resample(task, 
                     at_grln_xgb, 
                     cv_outer, 
-                    store_models = FALSE)
+                    store_models = TRUE)
 
 future::plan("multisession")
 # test learner
@@ -290,7 +290,7 @@ future::plan(list("sequential", "multisession"))
 rr_lasso <- resample(task, 
                     at_grln_lasso, 
                     cv_outer, 
-                    store_models = FALSE)
+                    store_models = TRUE)
 
 future::plan("multisession")
 # test learner
@@ -342,7 +342,7 @@ future::plan(list("sequential", "multisession"))
 rr_rf <- resample(task, 
                     at_grln_rf, 
                     cv_outer, 
-                    store_models = FALSE)
+                    store_models = TRUE)
 
 future::plan("multisession")
 # test learner
@@ -393,7 +393,7 @@ future::plan(list("sequential", "multisession"))
 rr_net <- resample(task, 
                     at_grln_net, 
                     cv_outer, 
-                    store_models = FALSE)
+                    store_models = TRUE)
 
 future::plan("multisession")
 # test learner
@@ -444,7 +444,7 @@ future::plan(list("sequential", "multisession"))
 rr_svm <- resample(task, 
                     at_grln_svm, 
                     cv_outer, 
-                    store_models = FALSE)
+                    store_models = TRUE)
 
 future::plan("multisession")
 # test learner
