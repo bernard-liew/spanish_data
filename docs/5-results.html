@@ -400,7 +400,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -409,7 +409,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -418,10 +418,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-06-30
+<strong>Last updated:</strong> 2021-07-02
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>spanish_data/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -437,12 +437,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </div>
 </div>
 </div>
@@ -509,16 +509,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombernardliewspanishdatatreed8f2a64d4c776692eeeca196b535e39064bb48f9targetblankd8f2a64a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/bernard-liew/spanish_data/tree/d8f2a64d4c776692eeeca196b535e39064bb48f9" target="_blank">d8f2a64</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombernardliewspanishdatatree3ec8912876943b243fd62ce2bad7c8ac40c8ee6ctargetblank3ec8912a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/bernard-liew/spanish_data/tree/3ec8912876943b243fd62ce2bad7c8ac40c8ee6c" target="_blank">3ec8912</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcombernardliewspanishdatatreed8f2a64d4c776692eeeca196b535e39064bb48f9targetblankd8f2a64a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcombernardliewspanishdatatree3ec8912876943b243fd62ce2bad7c8ac40c8ee6ctargetblank3ec8912a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/bernard-liew/spanish_data/tree/d8f2a64d4c776692eeeca196b535e39064bb48f9" target="_blank">d8f2a64</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/bernard-liew/spanish_data/tree/3ec8912876943b243fd62ce2bad7c8ac40c8ee6c" target="_blank">3ec8912</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -526,25 +526,10 @@ Note that you need to be careful to ensure that all relevant files for the analy
 <pre><code>
 Ignored files:
     Ignored:    .Rproj.user/
-    Ignored:    analysis/figure/
+    Ignored:    output/ap_result.RDS
+    Ignored:    output/dis_result.RDS
+    Ignored:    output/np_result.RDS
     Ignored:    output/report_files/
-
-Untracked files:
-    Untracked:  analysis/4-disability.Rmd
-    Untracked:  analysis/5-results.Rmd
-    Untracked:  code/neckpain.R
-    Untracked:  figure/
-    Untracked:  output/ap_result.RDS
-    Untracked:  output/dis_result.RDS
-    Untracked:  output/np_result.RDS
-
-Unstaged changes:
-    Modified:   analysis/2-neckpain.Rmd
-    Modified:   analysis/3-armpain.Rmd
-    Deleted:    ~WRL0003.tmp
-
-Staged changes:
-    New:        code/reprex.R
 
 </code></pre>
 <p>
@@ -557,9 +542,69 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
+
 <p>
-There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/5-results.Rmd</code>) and HTML (<code>docs/5-results.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/bernard-liew/spanish_data/blob/3ec8912876943b243fd62ce2bad7c8ac40c8ee6c/analysis/5-results.Rmd" target="_blank">3ec8912</a>
+</td>
+<td>
+Bernard
+</td>
+<td>
+2021-07-02
+</td>
+<td>
+updated models and build for publish
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/bernard-liew/spanish_data/3ec8912876943b243fd62ce2bad7c8ac40c8ee6c/docs/5-results.html" target="_blank">3ec8912</a>
+</td>
+<td>
+Bernard
+</td>
+<td>
+2021-07-02
+</td>
+<td>
+updated models and build for publish
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -997,6 +1042,7 @@ other attached packages:
 [10] forcats_0.5.0       stringr_1.4.0       dplyr_1.0.2        
 [13] purrr_0.3.4         readr_1.4.0         tidyr_1.1.2        
 [16] tibble_3.0.4        ggplot2_3.3.3       tidyverse_1.3.0    
+[19] workflowr_1.6.2    
 
 loaded via a namespace (and not attached):
  [1] fs_1.5.0             lubridate_1.7.9.2    bbotk_0.3.2         
@@ -1014,19 +1060,19 @@ loaded via a namespace (and not attached):
 [37] generics_0.1.0       farver_2.0.3         jsonlite_1.7.2      
 [40] magrittr_2.0.1       Matrix_1.2-18        Rcpp_1.0.6          
 [43] munsell_0.5.0        fansi_0.4.1          lifecycle_0.2.0     
-[46] stringi_1.5.3        yaml_2.2.1           grid_4.0.2          
-[49] parallel_4.0.2       promises_1.1.1       crayon_1.3.4        
-[52] lattice_0.20-41      splines_4.0.2        haven_2.3.1         
-[55] hms_0.5.3            knitr_1.30           pillar_1.4.7        
-[58] ranger_0.12.1        igraph_1.2.6         uuid_0.1-4          
-[61] xgboost_1.3.1.1      codetools_0.2-18     reprex_0.3.0        
-[64] glue_1.4.2           evaluate_0.14        data.table_1.14.0   
-[67] modelr_0.1.8         vctrs_0.3.6          httpuv_1.5.4        
-[70] foreach_1.5.1        cellranger_1.1.0     gtable_0.3.0        
-[73] assertthat_0.2.1     xfun_0.20            broom_0.7.4.9000    
-[76] e1071_1.7-4          later_1.1.0.1        class_7.3-17        
-[79] survival_3.2-7       iterators_1.0.13     kknn_1.3.1          
-[82] workflowr_1.6.2      ellipsis_0.3.1      </code></pre>
+[46] stringi_1.5.3        whisker_0.4          yaml_2.2.1          
+[49] grid_4.0.2           parallel_4.0.2       promises_1.1.1      
+[52] crayon_1.3.4         lattice_0.20-41      splines_4.0.2       
+[55] haven_2.3.1          hms_0.5.3            knitr_1.30          
+[58] ps_1.5.0             pillar_1.4.7         ranger_0.12.1       
+[61] igraph_1.2.6         uuid_0.1-4           xgboost_1.3.1.1     
+[64] codetools_0.2-18     reprex_0.3.0         glue_1.4.2          
+[67] evaluate_0.14        data.table_1.14.0    modelr_0.1.8        
+[70] foreach_1.5.1        vctrs_0.3.6          httpuv_1.5.4        
+[73] cellranger_1.1.0     gtable_0.3.0         assertthat_0.2.1    
+[76] xfun_0.20            broom_0.7.4.9000     e1071_1.7-4         
+[79] later_1.1.0.1        class_7.3-17         survival_3.2-7      
+[82] iterators_1.0.13     kknn_1.3.1           ellipsis_0.3.1      </code></pre>
 </div>
 </div>
 </div>
