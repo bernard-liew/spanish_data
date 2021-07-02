@@ -9,6 +9,11 @@ editor_options:
 
 # Introduction
 
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
 ```{r}
 # Helper
 library (tidyverse)
@@ -100,7 +105,7 @@ at_grln_logreg <-  AutoFSelector$new(
   learner = grln_logreg_lnr, 
   resampling = cv_inner, 
   measure = measure,
-  terminator = trm("stagnation", iters = 5),
+  terminator = trm("combo"),
   fselect = fs("sequential", strategy = "sbs"),
   store_models = TRUE)
 
@@ -113,16 +118,19 @@ rr_logreg <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
+future:::ClusterRegistry("stop")
+
 future::plan("multisession")
 # Train learner
 at_grln_logreg$train (task, row_ids = train_id)
 as.data.table (at_grln_logreg$archive)
 at_grln_logreg$fselect_result
 
+future:::ClusterRegistry("stop")
 # Predict learner
-prediction = at_grln_logreg$predict(task, row_ids = test_id)
-autoplot(prediction, type = "roc")
-prediction$score (measures)
+# prediction = at_grln_logreg$predict(task, row_ids = test_id)
+# autoplot(prediction, type = "roc")
+# prediction$score (measures)
 
 
 ```
@@ -165,18 +173,21 @@ rr_kknn <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
+future:::ClusterRegistry("stop")
+
 future::plan("multisession")
 # Train learner
 at_grln_kknn$train (task, row_ids = train_id)
 at_grln_kknn$archive
 at_grln_kknn$tuning_result
 
+future:::ClusterRegistry("stop")
 #grln_kknn_lnr$param_set$values <- at_grln_kknn$tuning_instance$result_learner_param_vals
 
 # Predict learner
-prediction = at_grln_kknn$predict(task, row_ids = test_id)
-prediction$score (measures)
-autoplot(prediction, type = "roc")
+# prediction = at_grln_kknn$predict(task, row_ids = test_id)
+# prediction$score (measures)
+# autoplot(prediction, type = "roc")
 
 ```
 
@@ -247,15 +258,18 @@ rr_xgb <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
+future:::ClusterRegistry("stop")
+
 future::plan("multisession")
 # test learner
 at_grln_xgb$train (task, row_ids = train_id)
 at_grln_xgb$archive
 at_grln_xgb$tuning_result
 
-prediction = at_grln_xgb$predict(task, row_ids = test_id)
-prediction$score (measures)
-autoplot(prediction, type = "roc")
+future:::ClusterRegistry("stop")
+# prediction = at_grln_xgb$predict(task, row_ids = test_id)
+# prediction$score (measures)
+# autoplot(prediction, type = "roc")
 
 ```
 
@@ -292,15 +306,19 @@ rr_lasso <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
+future:::ClusterRegistry("stop")
+
 future::plan("multisession")
 # test learner
 at_grln_lasso$train (task, row_ids = train_id)
 at_grln_lasso$archive
 at_grln_lasso$tuning_result
 
-prediction = at_grln_lasso$predict(task, row_ids = test_id)
-prediction$score (measures)
-autoplot(prediction, type = "roc")
+future:::ClusterRegistry("stop")
+
+# prediction = at_grln_lasso$predict(task, row_ids = test_id)
+# prediction$score (measures)
+# autoplot(prediction, type = "roc")
 ```
 
 # Set random forest
@@ -318,9 +336,10 @@ grln_rf_lnr <- GraphLearner$new(grln_rf)
 grln_rf_lnr$param_set 
 
 ps_rf <- ParamSet$new(list (
-  ParamInt$new ("rf.mtry", lower = 5, upper = 15),
-  ParamInt$new ("rf.min.node.size", lower = 1, upper = 20),
-  ParamDbl$new ("rf.sample.fraction", lower = 0.5, upper = 1)
+  ParamInt$new ("rf.mtry", lower = 5, upper = 15, tags = "budget"),
+  ParamDbl$new ("rf.sample.fraction", lower = 0.5, upper = 1),
+  ParamInt$new ("rf.min.node.size", lower = 1, upper = 20)
+  
 ))
 
 bind_rows(generate_design_grid(ps_rf, 5)$transpose())
@@ -332,7 +351,7 @@ at_grln_rf <- AutoTuner$new (
   measure = measure,
   terminator = evals,
   search_space = ps_rf,
-  tuner = tnr("grid_search", resolution = 5),
+  tuner = tnr("hyperband", eta = 5),
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
@@ -344,15 +363,18 @@ rr_rf <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
+future:::ClusterRegistry("stop")
+
 future::plan("multisession")
 # test learner
 at_grln_rf$train (task, row_ids = train_id)
 at_grln_rf$archive
 at_grln_rf$tuning_result
 
-prediction = at_grln_rf$predict(task, row_ids = test_id)
-prediction$score (measures)
-autoplot(prediction, type = "roc")
+future:::ClusterRegistry("stop")
+# prediction = at_grln_rf$predict(task, row_ids = test_id)
+# prediction$score (measures)
+# autoplot(prediction, type = "roc")
 ```
 
 # Set neural net
@@ -395,15 +417,18 @@ rr_net <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
+future:::ClusterRegistry("stop")
+
 future::plan("multisession")
 # test learner
 at_grln_net$train (task, row_ids = train_id)
 at_grln_net$archive
 at_grln_net$tuning_result
 
-prediction = at_grln_net$predict(task, row_ids = test_id)
-prediction$score (measures)
-autoplot(prediction, type = "roc")
+future:::ClusterRegistry("stop")
+# prediction = at_grln_net$predict(task, row_ids = test_id)
+# prediction$score (measures)
+# autoplot(prediction, type = "roc")
 ```
 
 # Set support vector machine
@@ -430,7 +455,7 @@ bind_rows(generate_design_grid(ps_svm, 5)$transpose())
 
 at_grln_svm <- AutoTuner$new (
   learner = grln_svm_lnr,
-  resampling = resampling,
+  resampling = cv_inner,
   measure = measure,
   terminator = evals,
   search_space = ps_svm,
@@ -446,22 +471,26 @@ rr_svm <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
+future:::ClusterRegistry("stop")
+
 future::plan("multisession")
 # test learner
 at_grln_svm$train (task, row_ids = train_id)
 at_grln_svm$archive
 at_grln_svm$tuning_result
 
-prediction = at_grln_svm$predict(task, row_ids = test_id)
-prediction$score (measures)
-autoplot(prediction, type = "roc")
+future:::ClusterRegistry("stop")
+
+# prediction = at_grln_svm$predict(task, row_ids = test_id)
+# prediction$score (measures)
+# autoplot(prediction, type = "roc")
 ```
 
 
 # Save files
 ```{r}
 rsmp_list <- list (rr_logreg = rr_logreg,
-                   rr_kknn = rr_kkn,
+                   rr_kknn = rr_kknn,
                    rr_xgb = rr_xgb,
                    rr_lasso = rr_lasso,
                    rr_rf = rr_rf,
@@ -469,7 +498,7 @@ rsmp_list <- list (rr_logreg = rr_logreg,
                    rr_svm = rr_svm)
 
 model_list <- list (at_grln_logreg = at_grln_logreg,
-                   at_grln_kknn = at_grln_kkn,
+                   at_grln_kknn = at_grln_kknn,
                    at_grln_xgb = at_grln_xgb,
                    at_grln_lasso = at_grln_lasso,
                    at_grln_rf = at_grln_rf,

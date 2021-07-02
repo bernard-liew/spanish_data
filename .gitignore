@@ -10,18 +10,6 @@ analysis/*html
 analysis/*_cache
 analysis/site_libs
 
-output/report_files/figure-html/correlation_analysis-1.png
+output/report_files/*
 
-output/report_files/figure-html/missing_profile-1.png
-
-output/report_files/figure-html/plot_frequency_bar-1.png
-
-output/report_files/figure-html/plot_frequency_bar-2.png
-
-output/report_files/figure-html/plot_frequency_bar-3.png
-
-output/report_files/figure-html/plot_histogram-1.png
-
-output/report_files/figure-html/plot_intro-1.png
-
-output/report_files/figure-html/plot_normal_qq-1.png
+output/*.RDS

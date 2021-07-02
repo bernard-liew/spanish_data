@@ -9,3 +9,13 @@ editor_options:
 ---
 
 Welcome to my research website.
+
+[This code cleans data](1-explore.html)
+
+[This code performs analysis on neck pain data](2-neckpain.html)
+
+[This code performs analysis on arm pain data](3-armpain.html)
+
+[This code performs analysis on disability data](4-disability.html)
+
+[This code performs reporting of results](5-results.html)

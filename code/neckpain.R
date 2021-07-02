@@ -1,19 +1,15 @@
----
-title: "2-prelim_model"
-author: "Bernard"
-date: "2021-03-31"
-output: workflowr::wflow_html
-editor_options:
-  chunk_output_type: console
----
-
-# Introduction
-```{r, include = FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
-
-
-```{r}
+#' ---
+#' title: "2-prelim_model"
+#' author: "Bernard"
+#' date: "2021-03-31"
+#' output: workflowr::wflow_html
+#' editor_options:
+#'   chunk_output_type: console
+#' ---
+#' 
+#' # Introduction
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 # Helper
 library (tidyverse)
 
@@ -29,27 +25,27 @@ library (mlr3hyperband)
 set.seed(7832)
 lgr::get_logger("mlr3")$set_threshold("warn")
 lgr::get_logger("bbotk")$set_threshold("warn")
-```
 
-# Load data
-
-```{r}
+#' 
+#' # Load data
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 dat <- readRDS("output/df.RDS") 
 
-train <- dat$df_list$ap$train_imp
-test <- dat$df_list$ap$test_imp
+train <- dat$df_list$np$train_imp
+test <- dat$df_list$np$test_imp
 
 comb <- bind_rows(train, test)
 train_id <- 1: nrow (train)
 test_id <- (nrow (train) + 1): nrow (comb)
 
-```
 
-# Set task
-
-```{r}
+#' 
+#' # Set task
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 # Set training task
-task<- TaskClassif$new (id = "armpain", backend = comb, target = "outcome")
+task<- TaskClassif$new (id = "neckpain", backend = comb, target = "outcome")
 task$nrow
 task$feature_names
 task$set_col_roles("ID", roles = "name")
@@ -66,11 +62,11 @@ poscale <- po("scale", param_vals = list (center = TRUE, scale = TRUE))
 poscale$train(list(task))[[1]]$data()
 
 
-```
 
-# Set tuning
-
-```{r}
+#' 
+#' # Set tuning
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 evals <- trm("none")
 measure <-  msr("classif.auc")
 measures <- list (msr("classif.auc"), 
@@ -82,12 +78,12 @@ measures <- list (msr("classif.auc"),
 # Set resample
 cv_inner <- rsmp("cv", folds = 5)
 cv_outer <- rsmp("cv", folds = 3)
-```
 
-# Set logistic regression model
-
-
-```{r}
+#' 
+#' # Set logistic regression model
+#' 
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 # Set learner with type proability
 lrn_logreg <- lrn("classif.log_reg", id = "log", predict_type = "prob")
 
@@ -132,12 +128,12 @@ future:::ClusterRegistry("stop")
 # prediction$score (measures)
 
 
-```
 
-# Set kknn model
-
-
-```{r}
+#' 
+#' # Set kknn model
+#' 
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 # Set learner with type proability
 lrn_kknn <- lrn("classif.kknn", id = "kknn", predict_type = "prob")
 
@@ -171,7 +167,6 @@ rr_kknn <- resample(task,
                     at_grln_kknn, 
                     cv_outer, 
                     store_models = TRUE)
-
 future:::ClusterRegistry("stop")
 
 future::plan("multisession")
@@ -188,11 +183,11 @@ future:::ClusterRegistry("stop")
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
 
-```
 
-# Set xgboost
-
-```{r}
+#' 
+#' # Set xgboost
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 lrn_xgb <- lrn("classif.xgboost", id = "xgb", predict_type = "prob",  eta = 0.01)
 
 grln_xgb <- poscale %>>%
@@ -257,24 +252,21 @@ rr_xgb <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
-future:::ClusterRegistry("stop")
-
 future::plan("multisession")
 # test learner
 at_grln_xgb$train (task, row_ids = train_id)
 at_grln_xgb$archive
 at_grln_xgb$tuning_result
 
-future:::ClusterRegistry("stop")
 # prediction = at_grln_xgb$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
 
-```
 
-# Set lasso
-
-```{r}
+#' 
+#' # Set lasso
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 lrn_lasso <- lrn("classif.glmnet", id = "lasso", predict_type = "prob")
 
 grln_lasso <- poscale %>>%
@@ -305,24 +297,20 @@ rr_lasso <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
-future:::ClusterRegistry("stop")
-
 future::plan("multisession")
 # test learner
 at_grln_lasso$train (task, row_ids = train_id)
 at_grln_lasso$archive
 at_grln_lasso$tuning_result
 
-future:::ClusterRegistry("stop")
-
 # prediction = at_grln_lasso$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
-```
 
-# Set random forest
-
-```{r}
+#' 
+#' # Set random forest
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 lrn_rf <- lrn("classif.ranger", id = "rf", predict_type = "prob")
 
 grln_rf  <- poscale %>>%
@@ -335,10 +323,9 @@ grln_rf_lnr <- GraphLearner$new(grln_rf)
 grln_rf_lnr$param_set 
 
 ps_rf <- ParamSet$new(list (
-  ParamInt$new ("rf.mtry", lower = 5, upper = 15, tags = "budget"),
-  ParamDbl$new ("rf.sample.fraction", lower = 0.5, upper = 1),
-  ParamInt$new ("rf.min.node.size", lower = 1, upper = 20)
-  
+  ParamInt$new ("rf.mtry", lower = 5, upper = 15),
+  ParamInt$new ("rf.min.node.size", lower = 1, upper = 20),
+  ParamDbl$new ("rf.sample.fraction", lower = 0.5, upper = 1)
 ))
 
 bind_rows(generate_design_grid(ps_rf, 5)$transpose())
@@ -350,7 +337,7 @@ at_grln_rf <- AutoTuner$new (
   measure = measure,
   terminator = evals,
   search_space = ps_rf,
-  tuner = tnr("hyperband", eta = 5),
+  tuner = tnr("grid_search", resolution = 5),
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
@@ -362,23 +349,20 @@ rr_rf <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
-future:::ClusterRegistry("stop")
-
 future::plan("multisession")
 # test learner
 at_grln_rf$train (task, row_ids = train_id)
 at_grln_rf$archive
 at_grln_rf$tuning_result
 
-future:::ClusterRegistry("stop")
 # prediction = at_grln_rf$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
-```
 
-# Set neural net
-
-```{r}
+#' 
+#' # Set neural net
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 lrn_net <- lrn("classif.nnet", id = "nnet", predict_type = "prob")
 
 grln_net <- poscale %>>%
@@ -416,23 +400,20 @@ rr_net <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
-future:::ClusterRegistry("stop")
-
 future::plan("multisession")
 # test learner
 at_grln_net$train (task, row_ids = train_id)
 at_grln_net$archive
 at_grln_net$tuning_result
 
-future:::ClusterRegistry("stop")
 # prediction = at_grln_net$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
-```
 
-# Set support vector machine
-
-```{r}
+#' 
+#' # Set support vector machine
+#' 
+## -----------------------------------------------------------------------------------------------------------------------
 lrn_svm <- lrn("classif.svm", id = "svm", type = "C-classification", kernel = "radial", predict_type = "prob")
 
 grln_svm <- poscale %>>%
@@ -454,7 +435,7 @@ bind_rows(generate_design_grid(ps_svm, 5)$transpose())
 
 at_grln_svm <- AutoTuner$new (
   learner = grln_svm_lnr,
-  resampling = cv_inner,
+  resampling = resampling,
   measure = measure,
   terminator = evals,
   search_space = ps_svm,
@@ -470,26 +451,22 @@ rr_svm <- resample(task,
                     cv_outer, 
                     store_models = TRUE)
 
-future:::ClusterRegistry("stop")
-
 future::plan("multisession")
 # test learner
 at_grln_svm$train (task, row_ids = train_id)
 at_grln_svm$archive
 at_grln_svm$tuning_result
 
-future:::ClusterRegistry("stop")
-
 # prediction = at_grln_svm$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
-```
 
-
-# Save files
-```{r}
+#' 
+#' 
+#' # Save files
+## -----------------------------------------------------------------------------------------------------------------------
 rsmp_list <- list (rr_logreg = rr_logreg,
-                   rr_kknn = rr_kknn,
+                   rr_kknn = rr_kkn,
                    rr_xgb = rr_xgb,
                    rr_lasso = rr_lasso,
                    rr_rf = rr_rf,
@@ -497,7 +474,7 @@ rsmp_list <- list (rr_logreg = rr_logreg,
                    rr_svm = rr_svm)
 
 model_list <- list (at_grln_logreg = at_grln_logreg,
-                   at_grln_kknn = at_grln_kknn,
+                   at_grln_kknn = at_grln_kkn,
                    at_grln_xgb = at_grln_xgb,
                    at_grln_lasso = at_grln_lasso,
                    at_grln_rf = at_grln_rf,
@@ -506,6 +483,8 @@ model_list <- list (at_grln_logreg = at_grln_logreg,
 
 saveRDS (list (rsmp_list = rsmp_list,
                model_list = model_list),
-         "output/ap_result.RDS")
+         "output/np_result.RDS")
 
-```
+
+#' 
+#' 

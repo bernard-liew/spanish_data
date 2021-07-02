@@ -1,7 +1,7 @@
 ---
-title: "2-prelim_model"
+title: "4-disability"
 author: "Bernard"
-date: "2021-03-31"
+date: "2021-06-25"
 output: workflowr::wflow_html
 editor_options:
   chunk_output_type: console
@@ -36,8 +36,8 @@ lgr::get_logger("bbotk")$set_threshold("warn")
 ```{r}
 dat <- readRDS("output/df.RDS") 
 
-train <- dat$df_list$ap$train_imp
-test <- dat$df_list$ap$test_imp
+train <- dat$df_list$dis$train_imp
+test <- dat$df_list$dis$test_imp
 
 comb <- bind_rows(train, test)
 train_id <- 1: nrow (train)
@@ -49,7 +49,7 @@ test_id <- (nrow (train) + 1): nrow (comb)
 
 ```{r}
 # Set training task
-task<- TaskClassif$new (id = "armpain", backend = comb, target = "outcome")
+task<- TaskClassif$new (id = "disability", backend = comb, target = "outcome")
 task$nrow
 task$feature_names
 task$set_col_roles("ID", roles = "name")
@@ -506,6 +506,6 @@ model_list <- list (at_grln_logreg = at_grln_logreg,
 
 saveRDS (list (rsmp_list = rsmp_list,
                model_list = model_list),
-         "output/ap_result.RDS")
+         "output/dis_result.RDS")
 
 ```

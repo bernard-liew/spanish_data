@@ -1,0 +1,368 @@
+---
+title: "5-results"
+author: "Bernard"
+date: "2021-06-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+# Load package
+
+```{r}
+# Helper
+library (tidyverse)
+library (cowplot)
+# ML
+library (mlr3)
+library (mlr3learners)
+library (mlr3tuning)
+library (mlr3viz)
+library (mlr3fselect)
+library (mlr3pipelines)
+library (mlr3hyperband)
+```
+
+# Create tasks
+
+```{r}
+dat <- readRDS("output/df.RDS") 
+
+# Neck pain
+train <- dat$df_list$np$train_imp
+test <- dat$df_list$np$test_imp
+comb <- bind_rows(train, test)
+train_id <- 1: nrow (train)
+test_id <- (nrow (train) + 1): nrow (comb)
+# Set training task
+task_np <- TaskClassif$new (id = "neckpain", backend = comb, target = "outcome")
+task_np$set_col_roles("ID", roles = "name")
+
+# Arm pain
+train <- dat$df_list$ap$train_imp
+test <- dat$df_list$ap$test_imp
+comb <- bind_rows(train, test)
+train_id <- 1: nrow (train)
+test_id <- (nrow (train) + 1): nrow (comb)
+# Set training task
+task_ap <- TaskClassif$new (id = "armpain", backend = comb, target = "outcome")
+task_ap$set_col_roles("ID", roles = "name")
+
+# NDI
+
+train <- dat$df_list$dis$train_imp
+test <- dat$df_list$dis$test_imp
+comb <- bind_rows(train, test)
+train_id <- 1: nrow (train)
+test_id <- (nrow (train) + 1): nrow (comb)
+# Set training task
+task_dis <- TaskClassif$new (id = "disability", backend = comb, target = "outcome")
+task_dis$set_col_roles("ID", roles = "name")
+
+measures <- list (msr("classif.auc"), 
+                  msr("classif.acc"),
+                  msr("classif.tpr"),
+                  msr("classif.fpr"),
+                  msr("classif.fnr"),
+                  msr("classif.tnr"))
+
+```
+
+# Neck pain
+
+## Internal validation
+
+```{r}
+m_list <- readRDS("output/np_result.RDS")
+
+bmr1 <- as_benchmark_result(m_list$rsmp_list$rr_logreg)
+bmr2 <- as_benchmark_result(m_list$rsmp_list$rr_kknn)
+bmr3 <- as_benchmark_result(m_list$rsmp_list$rr_xgb)
+bmr4 <- as_benchmark_result(m_list$rsmp_list$rr_lasso)
+bmr5 <- as_benchmark_result(m_list$rsmp_list$rr_rf)
+bmr6 <- as_benchmark_result(m_list$rsmp_list$rr_net)
+bmr7 <- as_benchmark_result(m_list$rsmp_list$rr_svm)
+
+
+bmr1$
+  combine(bmr2)$
+  combine (bmr3)$
+  combine (bmr4)$
+  combine (bmr5)$
+  combine (bmr6)$
+  combine (bmr7)
+
+bmr1
+
+```
+
+### Plot results
+
+```{r}
+
+ynames <- c("Area under Curve", "Accuracy", "True positive", 
+            "False positive", "False negative", "True negative")
+
+mod_names <- c("Logistic","KKNN","Xgboost", "Lasso", "RF", "Nnet", "SVM")
+
+plot_list <- vector ("list", length (measures))
+
+for (n in seq_along(measures)) {
+  
+  plot_list[[n]] <- autoplot(bmr1, measure = measures[[n]]) + 
+                      theme_cowplot() + 
+                      scale_x_discrete(labels = mod_names) +
+                      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) + 
+                      ylab (ynames[n])
+  
+} 
+
+plot_grid(
+  plotlist = plot_list,
+  align="hv"
+)
+
+
+```
+
+
+## External validation
+
+```{r}
+pred_list <- vector ("list", length (m_list$model_list))
+
+for (n in seq_along(m_list$model_list)) {
+  
+  m <- m_list$model_list[[n]]
+  p <- m$predict(task_np, row_ids = test_id)
+  pred_list[[n]] <- p$score (measures)
+  
+} 
+
+names(pred_list) <- mod_names
+
+pred <- pred_list %>%
+  bind_rows(.id = "models")
+
+names (pred)[-1] <- c("Auc", "Acc", "Tpr",
+                      "Fpr", "Fnr", "Tnr")
+
+```
+
+### Plot results
+
+```{r}
+
+pred_plot <- pred %>%
+  pivot_longer(cols = -models,
+               names_to = "Measures",
+               values_to = "Performance") %>%
+  ggplot() +
+  geom_bar(aes (x = Measures, y = Performance, fill = models), 
+           position = "dodge", stat = "identity") +
+  scale_fill_manual(values =  c("#030303", "#0000FF", "#EE0000", "#00CD00", "#EE9A00", "#912CEE", "#8B4726")) + 
+  theme_cowplot() 
+
+pred_plot
+  
+```
+
+
+# Arm pain
+
+## Internal validation
+
+```{r}
+m_list <- readRDS("output/ap_result.RDS")
+
+bmr1 <- as_benchmark_result(m_list$rsmp_list$rr_logreg)
+bmr2 <- as_benchmark_result(m_list$rsmp_list$rr_kknn)
+bmr3 <- as_benchmark_result(m_list$rsmp_list$rr_xgb)
+bmr4 <- as_benchmark_result(m_list$rsmp_list$rr_lasso)
+bmr5 <- as_benchmark_result(m_list$rsmp_list$rr_rf)
+bmr6 <- as_benchmark_result(m_list$rsmp_list$rr_net)
+bmr7 <- as_benchmark_result(m_list$rsmp_list$rr_svm)
+
+
+bmr1$
+  combine(bmr2)$
+  combine (bmr3)$
+  combine (bmr4)$
+  combine (bmr5)$
+  combine (bmr6)$
+  combine (bmr7)
+
+bmr1
+
+```
+
+### Plot results
+
+```{r}
+
+ynames <- c("Area under Curve", "Accuracy", "True positive", 
+            "False positive", "False negative", "True negative")
+
+mod_names <- c("Logistic","KKNN","Xgboost", "Lasso", "RF", "Nnet", "SVM")
+
+plot_list <- vector ("list", length (measures))
+
+for (n in seq_along(measures)) {
+  
+  plot_list[[n]] <- autoplot(bmr1, measure = measures[[n]]) + 
+                      theme_cowplot() + 
+                      scale_x_discrete(labels = mod_names) +
+                      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) + 
+                      ylab (ynames[n])
+  
+} 
+
+plot_grid(
+  plotlist = plot_list,
+  align="hv"
+)
+
+
+```
+
+
+## External validation
+
+```{r}
+pred_list <- vector ("list", length (m_list$model_list))
+
+for (n in seq_along(m_list$model_list)) {
+  
+  m <- m_list$model_list[[n]]
+  p <- m$predict(task_ap, row_ids = test_id)
+  pred_list[[n]] <- p$score (measures)
+  
+} 
+
+names(pred_list) <- mod_names
+
+pred <- pred_list %>%
+  bind_rows(.id = "models")
+
+names (pred)[-1] <- c("Auc", "Acc", "Tpr",
+                      "Fpr", "Fnr", "Tnr")
+
+```
+
+### Plot results
+
+```{r}
+
+pred_plot <- pred %>%
+  pivot_longer(cols = -models,
+               names_to = "Measures",
+               values_to = "Performance") %>%
+  ggplot() +
+  geom_bar(aes (x = Measures, y = Performance, fill = models), 
+           position = "dodge", stat = "identity") +
+  scale_fill_manual(values =  c("#030303", "#0000FF", "#EE0000", "#00CD00", "#EE9A00", "#912CEE", "#8B4726")) + 
+  theme_cowplot() 
+
+pred_plot
+  
+```
+
+
+# Disability
+
+## Internal validation
+
+```{r}
+m_list <- readRDS("output/dis_result.RDS")
+
+bmr1 <- as_benchmark_result(m_list$rsmp_list$rr_logreg)
+bmr2 <- as_benchmark_result(m_list$rsmp_list$rr_kknn)
+bmr3 <- as_benchmark_result(m_list$rsmp_list$rr_xgb)
+bmr4 <- as_benchmark_result(m_list$rsmp_list$rr_lasso)
+bmr5 <- as_benchmark_result(m_list$rsmp_list$rr_rf)
+bmr6 <- as_benchmark_result(m_list$rsmp_list$rr_net)
+bmr7 <- as_benchmark_result(m_list$rsmp_list$rr_svm)
+
+
+bmr1$
+  combine(bmr2)$
+  combine (bmr3)$
+  combine (bmr4)$
+  combine (bmr5)$
+  combine (bmr6)$
+  combine (bmr7)
+
+bmr1
+
+```
+
+### Plot results
+
+```{r}
+
+ynames <- c("Area under Curve", "Accuracy", "True positive", 
+            "False positive", "False negative", "True negative")
+
+mod_names <- c("Logistic","KKNN","Xgboost", "Lasso", "RF", "Nnet", "SVM")
+
+plot_list <- vector ("list", length (measures))
+
+for (n in seq_along(measures)) {
+  
+  plot_list[[n]] <- autoplot(bmr1, measure = measures[[n]]) + 
+                      theme_cowplot() + 
+                      scale_x_discrete(labels = mod_names) +
+                      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) + 
+                      ylab (ynames[n])
+  
+} 
+
+plot_grid(
+  plotlist = plot_list,
+  align="hv"
+)
+
+
+```
+
+
+## External validation
+
+```{r}
+pred_list <- vector ("list", length (m_list$model_list))
+
+for (n in seq_along(m_list$model_list)) {
+  
+  m <- m_list$model_list[[n]]
+  p <- m$predict(task_dis, row_ids = test_id)
+  pred_list[[n]] <- p$score (measures)
+  
+} 
+
+names(pred_list) <- mod_names
+
+pred <- pred_list %>%
+  bind_rows(.id = "models")
+
+names (pred)[-1] <- c("Auc", "Acc", "Tpr",
+                      "Fpr", "Fnr", "Tnr")
+
+```
+
+### Plot results
+
+```{r}
+
+pred_plot <- pred %>%
+  pivot_longer(cols = -models,
+               names_to = "Measures",
+               values_to = "Performance") %>%
+  ggplot() +
+  geom_bar(aes (x = Measures, y = Performance, fill = models), 
+           position = "dodge", stat = "identity") +
+  scale_fill_manual(values =  c("#030303", "#0000FF", "#EE0000", "#00CD00", "#EE9A00", "#912CEE", "#8B4726")) + 
+  theme_cowplot() 
+
+pred_plot
+  
+```
