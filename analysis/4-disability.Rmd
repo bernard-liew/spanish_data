@@ -109,15 +109,15 @@ at_grln_logreg <-  AutoFSelector$new(
   store_models = TRUE)
 
 # Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_logreg <- resample(task, 
-                    at_grln_logreg, 
-                    cv_outer, 
-                    store_models = TRUE)
-
-future:::ClusterRegistry("stop")
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+# rr_logreg <- resample(task, 
+#                     at_grln_logreg, 
+#                     cv_outer, 
+#                     store_models = TRUE)
+# 
+# future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # Train learner
@@ -163,16 +163,16 @@ at_grln_kknn <-  AutoTuner$new(
   store_models = TRUE
 )
 
-# Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_kknn <- resample(task, 
-                    at_grln_kknn, 
-                    cv_outer, 
-                    store_models = TRUE)
-
-future:::ClusterRegistry("stop")
+# # Runs the outer loop sequentially and the inner loop in parallel
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+# rr_kknn <- resample(task, 
+#                     at_grln_kknn, 
+#                     cv_outer, 
+#                     store_models = TRUE)
+# 
+# future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # Train learner
@@ -249,15 +249,15 @@ at_grln_xgb <-  AutoTuner$new (
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_xgb <- resample(task, 
-                    at_grln_xgb, 
-                    cv_outer, 
-                    store_models = TRUE)
-
-future:::ClusterRegistry("stop")
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+# rr_xgb <- resample(task, 
+#                     at_grln_xgb, 
+#                     cv_outer, 
+#                     store_models = TRUE)
+# 
+# future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # test learner
@@ -297,15 +297,15 @@ at_grln_lasso <-  AutoTuner$new (
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_lasso <- resample(task, 
-                    at_grln_lasso, 
-                    cv_outer, 
-                    store_models = TRUE)
-
-future:::ClusterRegistry("stop")
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+# rr_lasso <- resample(task, 
+#                     at_grln_lasso, 
+#                     cv_outer, 
+#                     store_models = TRUE)
+# 
+# future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # test learner
@@ -353,16 +353,16 @@ at_grln_rf <- AutoTuner$new (
   tuner = tnr("hyperband", eta = 5),
   store_models = TRUE
 )
-# Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_rf <- resample(task, 
-                    at_grln_rf, 
-                    cv_outer, 
-                    store_models = TRUE)
-
-future:::ClusterRegistry("stop")
+# # Runs the outer loop sequentially and the inner loop in parallel
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+# rr_rf <- resample(task, 
+#                     at_grln_rf, 
+#                     cv_outer, 
+#                     store_models = TRUE)
+# 
+# future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # test learner
@@ -408,15 +408,15 @@ at_grln_net <- AutoTuner$new (
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_net <- resample(task, 
-                    at_grln_net, 
-                    cv_outer, 
-                    store_models = TRUE)
-
-future:::ClusterRegistry("stop")
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+# rr_net <- resample(task, 
+#                     at_grln_net, 
+#                     cv_outer, 
+#                     store_models = TRUE)
+# 
+# future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # test learner
@@ -462,15 +462,15 @@ at_grln_svm <- AutoTuner$new (
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_svm <- resample(task, 
-                    at_grln_svm, 
-                    cv_outer, 
-                    store_models = TRUE)
-
-future:::ClusterRegistry("stop")
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+# rr_svm <- resample(task, 
+#                     at_grln_svm, 
+#                     cv_outer, 
+#                     store_models = TRUE)
+# 
+# future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # test learner
@@ -488,13 +488,13 @@ future:::ClusterRegistry("stop")
 
 # Save files
 ```{r}
-rsmp_list <- list (rr_logreg = rr_logreg,
-                   rr_kknn = rr_kknn,
-                   rr_xgb = rr_xgb,
-                   rr_lasso = rr_lasso,
-                   rr_rf = rr_rf,
-                   rr_net = rr_net,
-                   rr_svm = rr_svm)
+# rsmp_list <- list (rr_logreg = rr_logreg,
+#                    rr_kknn = rr_kknn,
+#                    rr_xgb = rr_xgb,
+#                    rr_lasso = rr_lasso,
+#                    rr_rf = rr_rf,
+#                    rr_net = rr_net,
+#                    rr_svm = rr_svm)
 
 model_list <- list (at_grln_logreg = at_grln_logreg,
                    at_grln_kknn = at_grln_kknn,
@@ -504,8 +504,11 @@ model_list <- list (at_grln_logreg = at_grln_logreg,
                    at_grln_net = at_grln_net,
                    at_grln_svm = at_grln_svm)
 
-saveRDS (list (rsmp_list = rsmp_list,
-               model_list = model_list),
-         "output/dis_result.RDS")
+saveRDS (model_list,
+         "output/dis_models.RDS")
+
+# saveRDS (rsmp_list,
+#          "output/dis_rsmp.RDS")
+
 
 ```

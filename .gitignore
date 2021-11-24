@@ -13,3 +13,4 @@ analysis/site_libs
 output/report_files/*
 
 output/*.RDS
+manuscript/

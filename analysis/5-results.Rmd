@@ -21,6 +21,10 @@ library (mlr3viz)
 library (mlr3fselect)
 library (mlr3pipelines)
 library (mlr3hyperband)
+
+# Word
+library (flextable)
+library (officer)
 ```
 
 # Create tasks
@@ -68,6 +72,21 @@ measures <- list (msr("classif.auc"),
 
 ```
 
+## Set labels
+
+```{r}
+ynames <- c("Area under Curve", "Accuracy", "True positive", 
+            "False positive", "False negative", "True negative")
+
+perf <- c("Auc", "Acc", "Tpr",
+          "Fpr", "Fnr", "Tnr")
+
+mod_names <- c("Logistic","KKNN","Xgboost", "Lasso", "RF", "Nnet", "SVM")
+
+colz <- c("#030303", "#0000FF", "#EE0000", "#00CD00", "#EE9A00", "#912CEE", "#8B4726")
+```
+
+
 # Neck pain
 
 ## Internal validation
@@ -92,18 +111,13 @@ bmr1$
   combine (bmr6)$
   combine (bmr7)
 
-bmr1
+bmr1 
 
 ```
 
 ### Plot results
 
 ```{r}
-
-ynames <- c("Area under Curve", "Accuracy", "True positive", 
-            "False positive", "False negative", "True negative")
-
-mod_names <- c("Logistic","KKNN","Xgboost", "Lasso", "RF", "Nnet", "SVM")
 
 plot_list <- vector ("list", length (measures))
 
@@ -122,6 +136,30 @@ plot_grid(
   align="hv"
 )
 
+inner1 = plot_list %>%
+  map ("data") %>%
+  reduce (inner_join, by = c("nr", "task_id", "learner_id", "resampling_id")) %>%
+  pivot_longer(cols = matches ("classif"),
+               names_to = "Measure",
+               values_to = "Performance") %>%
+  mutate (Measure = str_remove (Measure, "classif.") %>%
+            factor (levels = c("auc", "acc", "tpr", "fpr", "fnr", "tnr"), labels = ynames)) %>%
+  mutate (models = ifelse (grepl ("kknn", learner_id),
+                    "Knn", ifelse (grepl ("xgb", learner_id),
+                    "Xgboost", ifelse (grepl ("lasso", learner_id),
+                    "Lasso", ifelse (grepl ("net", learner_id),
+                    "Nnet", ifelse (grepl ("rf", learner_id),
+                    "Random forest", ifelse (grepl ("svm", learner_id),
+                    "SVM", "Logistic")))))))
+
+ggplot (data = inner1) +
+  geom_boxplot(aes (x = models, y = Performance)) +
+  facet_wrap(~ Measure, scales = "free") + 
+  theme_cowplot() + 
+  scale_x_discrete(labels = mod_names) +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+
 
 ```
 
@@ -130,40 +168,64 @@ plot_grid(
 
 ```{r}
 pred_list <- vector ("list", length (m_list$model_list))
+tune_list <- vector ("list", length (m_list$model_list))
 
 for (n in seq_along(m_list$model_list)) {
   
   m <- m_list$model_list[[n]]
   p <- m$predict(task_np, row_ids = test_id)
   pred_list[[n]] <- p$score (measures)
+  tune_list[[n]] <- m$tuning_result
   
 } 
 
 names(pred_list) <- mod_names
+names(tune_list) <- mod_names
 
 pred <- pred_list %>%
   bind_rows(.id = "models")
 
-names (pred)[-1] <- c("Auc", "Acc", "Tpr",
-                      "Fpr", "Fnr", "Tnr")
+names (pred)[-1] <- perf
 
 ```
+
+### Tabularise hyperparameters
+
+```{r}
+
+tune_list[-1] <- map (tune_list[-1], ~ .x %>% select (!matches ("learner|x_domain|classif")))
+
+np <- bind_cols(tune_list) %>%
+  pivot_longer(cols = everything (),
+               names_to = "hypparm", 
+               values_to = "np") %>%
+  mutate (models = ifelse (grepl ("kknn", hypparm),
+                    "Knn", ifelse (grepl ("xgb", hypparm),
+                    "Xgboost", ifelse (grepl ("lasso", hypparm),
+                    "Lasso", ifelse (grepl ("net", hypparm),
+                    "Nnet", ifelse (grepl ("rf", hypparm),
+                    "Random forest", "SVM"))))))
+```
+
 
 ### Plot results
 
 ```{r}
 
-pred_plot <- pred %>%
+pred_plot1 <- pred %>%
+  mutate (models = factor (models, levels = mod_names)) %>%
   pivot_longer(cols = -models,
                names_to = "Measures",
                values_to = "Performance") %>%
+  mutate (Measures = factor (Measures, levels = perf, labels = ynames)) %>%
   ggplot() +
   geom_bar(aes (x = Measures, y = Performance, fill = models), 
            position = "dodge", stat = "identity") +
-  scale_fill_manual(values =  c("#030303", "#0000FF", "#EE0000", "#00CD00", "#EE9A00", "#912CEE", "#8B4726")) + 
-  theme_cowplot() 
+  scale_fill_manual(values =  colz) + 
+  theme_cowplot() +
+  theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) 
 
-pred_plot
+pred_plot1
   
 ```
 
@@ -200,11 +262,6 @@ bmr1
 
 ```{r}
 
-ynames <- c("Area under Curve", "Accuracy", "True positive", 
-            "False positive", "False negative", "True negative")
-
-mod_names <- c("Logistic","KKNN","Xgboost", "Lasso", "RF", "Nnet", "SVM")
-
 plot_list <- vector ("list", length (measures))
 
 for (n in seq_along(measures)) {
@@ -223,6 +280,30 @@ plot_grid(
 )
 
 
+inner2 = plot_list %>%
+  map ("data") %>%
+  reduce (inner_join, by = c("nr", "task_id", "learner_id", "resampling_id")) %>%
+  pivot_longer(cols = matches ("classif"),
+               names_to = "Measure",
+               values_to = "Performance") %>%
+  mutate (Measure = str_remove (Measure, "classif.") %>%
+            factor (levels = c("auc", "acc", "tpr", "fpr", "fnr", "tnr"), labels = ynames)) %>%
+  mutate (models = ifelse (grepl ("kknn", learner_id),
+                    "Knn", ifelse (grepl ("xgb", learner_id),
+                    "Xgboost", ifelse (grepl ("lasso", learner_id),
+                    "Lasso", ifelse (grepl ("net", learner_id),
+                    "Nnet", ifelse (grepl ("rf", learner_id),
+                    "Random forest", ifelse (grepl ("svm", learner_id),
+                    "SVM", "Logistic")))))))
+
+ggplot (data = inner2) +
+  geom_boxplot(aes (x = models, y = Performance)) +
+  facet_wrap(~ Measure, scales = "free") + 
+  theme_cowplot() + 
+  scale_x_discrete(labels = mod_names) +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+
 ```
 
 
@@ -230,40 +311,64 @@ plot_grid(
 
 ```{r}
 pred_list <- vector ("list", length (m_list$model_list))
+tune_list <- vector ("list", length (m_list$model_list))
 
 for (n in seq_along(m_list$model_list)) {
   
   m <- m_list$model_list[[n]]
   p <- m$predict(task_ap, row_ids = test_id)
   pred_list[[n]] <- p$score (measures)
-  
+  tune_list[[n]] <- m$tuning_result
 } 
 
 names(pred_list) <- mod_names
+names(tune_list) <- mod_names
 
 pred <- pred_list %>%
   bind_rows(.id = "models")
 
-names (pred)[-1] <- c("Auc", "Acc", "Tpr",
-                      "Fpr", "Fnr", "Tnr")
+names (pred)[-1] <- perf
 
+```
+
+
+### Tabularise hyperparameters
+
+```{r}
+
+tune_list[-1] <- map (tune_list[-1], ~ .x %>% select (!matches ("learner|x_domain|classif")))
+
+ap <- bind_cols(tune_list) %>%
+  pivot_longer(cols = everything (),
+               names_to = "hypparm", 
+               values_to = "ap") %>%
+  mutate (models = ifelse (grepl ("kknn", hypparm),
+                    "Knn", ifelse (grepl ("xgb", hypparm),
+                    "Xgboost", ifelse (grepl ("lasso", hypparm),
+                    "Lasso", ifelse (grepl ("net", hypparm),
+                    "Nnet", ifelse (grepl ("rf", hypparm),
+                    "Random forest", "SVM"))))))
 ```
 
 ### Plot results
 
 ```{r}
 
-pred_plot <- pred %>%
+pred_plot2 <- pred %>%
+  mutate (models = factor (models, levels = mod_names)) %>%
   pivot_longer(cols = -models,
                names_to = "Measures",
                values_to = "Performance") %>%
+  mutate (Measures = factor (Measures, levels = perf, labels = ynames)) %>%
   ggplot() +
   geom_bar(aes (x = Measures, y = Performance, fill = models), 
            position = "dodge", stat = "identity") +
-  scale_fill_manual(values =  c("#030303", "#0000FF", "#EE0000", "#00CD00", "#EE9A00", "#912CEE", "#8B4726")) + 
-  theme_cowplot() 
+  scale_fill_manual(values =  colz) + 
+  theme_cowplot() +
+  theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) 
 
-pred_plot
+pred_plot2
+  
   
 ```
 
@@ -300,11 +405,6 @@ bmr1
 
 ```{r}
 
-ynames <- c("Area under Curve", "Accuracy", "True positive", 
-            "False positive", "False negative", "True negative")
-
-mod_names <- c("Logistic","KKNN","Xgboost", "Lasso", "RF", "Nnet", "SVM")
-
 plot_list <- vector ("list", length (measures))
 
 for (n in seq_along(measures)) {
@@ -323,6 +423,30 @@ plot_grid(
 )
 
 
+inner3 = plot_list %>%
+  map ("data") %>%
+  reduce (inner_join, by = c("nr", "task_id", "learner_id", "resampling_id")) %>%
+  pivot_longer(cols = matches ("classif"),
+               names_to = "Measure",
+               values_to = "Performance") %>%
+  mutate (Measure = str_remove (Measure, "classif.") %>%
+            factor (levels = c("auc", "acc", "tpr", "fpr", "fnr", "tnr"), labels = ynames)) %>%
+  mutate (models = ifelse (grepl ("kknn", learner_id),
+                    "Knn", ifelse (grepl ("xgb", learner_id),
+                    "Xgboost", ifelse (grepl ("lasso", learner_id),
+                    "Lasso", ifelse (grepl ("net", learner_id),
+                    "Nnet", ifelse (grepl ("rf", learner_id),
+                    "Random forest", ifelse (grepl ("svm", learner_id),
+                    "SVM", "Logistic")))))))
+
+ggplot (data = inner3) +
+  geom_boxplot(aes (x = models, y = Performance)) +
+  facet_wrap(~ Measure, scales = "free") + 
+  theme_cowplot() + 
+  scale_x_discrete(labels = mod_names) +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+
+
 ```
 
 
@@ -330,39 +454,191 @@ plot_grid(
 
 ```{r}
 pred_list <- vector ("list", length (m_list$model_list))
+tune_list <- vector ("list", length (m_list$model_list))
 
 for (n in seq_along(m_list$model_list)) {
   
   m <- m_list$model_list[[n]]
   p <- m$predict(task_dis, row_ids = test_id)
   pred_list[[n]] <- p$score (measures)
-  
+  tune_list[[n]] <- m$tuning_result
 } 
 
 names(pred_list) <- mod_names
+names(tune_list) <- mod_names
 
 pred <- pred_list %>%
   bind_rows(.id = "models")
 
-names (pred)[-1] <- c("Auc", "Acc", "Tpr",
-                      "Fpr", "Fnr", "Tnr")
+names (pred)[-1] <- perf
 
+```
+
+
+### Tabularise hyperparameters
+
+```{r}
+
+tune_list[-1] <- map (tune_list[-1], ~ .x %>% select (!matches ("learner|x_domain|classif")))
+
+dis <- bind_cols(tune_list) %>%
+  pivot_longer(cols = everything (),
+               names_to = "hypparm", 
+               values_to = "dis") %>%
+  mutate (models = ifelse (grepl ("kknn", hypparm),
+                    "Knn", ifelse (grepl ("xgb", hypparm),
+                    "Xgboost", ifelse (grepl ("lasso", hypparm),
+                    "Lasso", ifelse (grepl ("net", hypparm),
+                    "Nnet", ifelse (grepl ("rf", hypparm),
+                    "Random forest", "SVM"))))))
 ```
 
 ### Plot results
 
 ```{r}
 
-pred_plot <- pred %>%
+
+pred_plot3 <- pred %>%
+  mutate (models = factor (models, levels = mod_names)) %>%
   pivot_longer(cols = -models,
                names_to = "Measures",
                values_to = "Performance") %>%
+  mutate (Measures = factor (Measures, levels = perf, labels = ynames)) %>%
   ggplot() +
   geom_bar(aes (x = Measures, y = Performance, fill = models), 
            position = "dodge", stat = "identity") +
-  scale_fill_manual(values =  c("#030303", "#0000FF", "#EE0000", "#00CD00", "#EE9A00", "#912CEE", "#8B4726")) + 
-  theme_cowplot() 
+  scale_fill_manual(values =  colz) + 
+  theme_cowplot() +
+  theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) 
 
-pred_plot
+pred_plot3
   
+```
+
+# Miscellaneous
+
+```{r, eval = FALSE, include = FALSE}
+
+df_param <- np %>%
+  inner_join (ap, by = c("models", "hypparm")) %>%
+  inner_join (dis, by = c("models", "hypparm")) %>%
+  select (models, hypparm, np, ap, dis) %>%
+  mutate_if(is.numeric, round, 3)
+
+# Export to word
+my_path <- paste0("manuscript/table_", 
+                  "hyperparams",
+                  ".docx")
+
+ft <- flextable(df_param ) %>%
+  autofit()
+
+my_doc <- read_docx()  %>% 
+  body_add_flextable(ft)
+
+print (my_doc, target = my_path)
+```
+
+
+```{r, eval = FALSE, include = FALSE}
+
+inner_plot <- bind_rows (inner1, inner2, inner3) %>%
+  mutate(Outcome = factor (task_id, 
+                           levels = c("neckpain", "armpain", "disability"), 
+                           labels = c("Neck paiin", "Arm pain", "Disability"))) %>%
+  mutate (models = factor (models, 
+                           levels = c("Logistic", "Knn", "Xgboost", "Lasso", "Random forest", "Nnet", "SVM"))) %>%
+  group_by(Outcome, models, Measure) %>%
+  summarize (Mean = mean (Performance),
+             Sd = sd (Performance))
+
+
+p <- ggplot (data = inner_plot) +
+  geom_point(aes (x = models, y = Mean, color = Outcome), position = position_dodge(width = 0.5)) +
+  geom_errorbar(aes (x = models, ymin = Mean - Sd, ymax = Mean + Sd, color = Outcome), 
+                position = position_dodge(width = 0.5), width = 0) + 
+  facet_wrap(~ Measure, scales = "free") + 
+  scale_fill_manual(values =  c("red", "blue", "darkgreen")) + 
+  scale_color_manual(values =  c("red", "blue", "darkgreen")) + 
+  theme_cowplot() + 
+  scale_x_discrete(labels = mod_names) +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
+  ylab ("Performance") + 
+  xlab ("Models")
+
+ggsave (filename = "fig2.png",
+        plot = p,
+        device = "png",
+        path = "manuscript",
+        width = 8,
+        height = 5,
+        units = "in",
+        dpi = 150)
+
+inner_plot <- inner_plot %>%
+  pivot_wider(names_from = "Measure",
+              values_from = c("Mean", "Sd"))
+
+xlsx::write.xlsx2(x = as.data.frame (inner_plot),
+                  file = "manuscript/performance_internal.xlsx",
+                  row.names = FALSE)
+
+```
+
+
+
+
+```{r, eval = FALSE, include = FALSE}
+
+legend <- get_legend(
+  # create some space to the left of the legend
+  pred_plot1 + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+
+
+
+p1 <- plot_grid(
+  pred_plot1 + 
+    theme(legend.position="none") + 
+    xlab (NULL) + 
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()),
+  pred_plot2 + 
+    theme(legend.position="none") + 
+    xlab (NULL) + 
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()),
+  pred_plot3 + 
+    theme(legend.position="none") ,
+  ncol = 1,
+  align = "h"
+)
+
+p1 <- plot_grid(p1, legend, rel_widths = c(3, .4))
+
+
+ggsave (filename = "fig3.png",
+        plot = p1,
+        device = "png",
+        path = "manuscript",
+        width = 8,
+        height = 5,
+        units = "in",
+        dpi = 150)
+
+
+pred_plot <- bind_rows(pred_plot1$data,
+                       pred_plot2$data,
+                       pred_plot3$data) %>%
+  mutate (Outcome = rep (c("Neck pain", "Arm pain", "Disability"), each = 42)) %>%
+  ungroup () %>%
+  pivot_wider(names_from = "Measures",
+              values_from = "Performance")
+
+xlsx::write.xlsx2(x = as.data.frame (pred_plot),
+                  file = "manuscript/performance_external.xlsx",
+                  row.names = FALSE)
+
 ```

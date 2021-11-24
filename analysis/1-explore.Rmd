@@ -30,6 +30,27 @@ library (VIM)
 library (naniar)
 library (mice)
 library (NADIA)
+
+# Plot 
+library (cowplot)
+
+# Word
+
+library (flextable)
+library (officer)
+
+# Summary
+library (qwraps2)
+
+meanNsd_transform <- function (x) {
+  
+  m <- round (as.numeric (x[1]), 2)
+  s <- round (as.numeric (x[2]), 2)
+
+      m_s <- paste0(m, "(", s, ")")
+  
+    return (m_s)
+}
 ```
 
 Model for Improvement of neckpain: filter by VAS_neckpain_0 > 1.5 AND 0 missing values for all the obseravtions who entered into the full model.
@@ -170,5 +191,93 @@ dat <- list (data = df,
 ```{r}
 saveRDS(dat,
         "output/df.RDS")
+```
+
+## Export descriptive data
+
+```{r}
+df_desc <- bind_cols (df[,c(2:4)], df[names (df) %in% names (ap)]) %>%
+  select (-ID)
+```
+
+### Missing graph
+
+```{r}
+f <- plot_missing (df_desc) +
+  theme_cowplot()
+
+ggsave ("sm_plot_1.png",
+        f,
+        device = "png",
+        path = "manuscript/",
+        units = "in",
+        width = 10,
+        height = 6,
+        dpi = 200)
+```
+
+### Descriptives
+
+```{r}
+
+table1 <- tableby(~., 
+                  data = df_desc,
+                  control=tableby.control(digits=2, digits.p = 3)) %>%
+  as.data.frame() %>%
+  filter (!term %in% c("Nmiss", "range"))%>%
+  select (-c(group.term:term, variable.type, Overall)) 
+  
+table1 <- table1 %>%
+  mutate (Total = map (Total, meanNsd_transform)) %>%
+  mutate (Total = ifelse (Total == "NA(NA)", "", Total))
+
+
+label_names <- c("Neck pain improvement", "No", "Yes",
+                 "Arm pain improvement", "No", "Yes",
+                 "Disability improvement", "No", "Yes",
+                 "Sex", "Male", "Female",
+                 "Age (years)", "Mean (SD)",
+                 "Employment", "Not applicable", "Not working", "Working",
+                 "Pain duration (days)", "Mean(SD)",
+                 "Time since first episode (years)", "<1", "1-5", "5-10", ">10",
+                 "Chronicity", "Acute", "Chronic",
+                 "Baseline neck pain", "Mean(SD)",
+                 "Baseline arm pain", "Mean(SD)",
+                 "Baseline disability", "Mean(SD)",
+                 "Xray diagnosis", "No", "Yes",
+                 "MRI diagnosis", "No", "Yes",
+                 "Imaging findings of disc degeneration", "No", "Yes",
+                 "Imaging findings of facet degeneration", "No", "Yes",
+                 "Imaging findings of scoliosis", "No", "Yes",
+                 "Imaging findings of spinal stenosis", "No", "Yes",
+                 "Imaging findings of disc protrusion", "No", "Yes",
+                 "Imaging findings of disc herniation", "No", "Yes",
+                 "Clincal diagnosis", "Disc protrusion/herniation", "Spinal stenosis", "Non-specific",
+                 "Pharmacological:analgesics", "No", "Yes",
+                 "Pharmacological:NSAIDS", "No", "Yes",
+                 "Pharmacological:steroids", "No", "Yes",
+                 "Pharmacological:muscle relaxants", "No", "Yes",
+                 "Pharmacological:opioids", "No", "Yes",
+                 "Pharmacological:other", "No", "Yes",
+                 "Non-pharmacological treatment", "No", "Yes",
+                 "Neruo-reflexotherapy", "No", "Yes"
+                 )
+
+table1$label <- label_names
+
+table1 <- table1 %>%
+  rename (Variable = label)
+
+my_path <- paste0("manuscript/table_2_", 
+                  "descriptive",
+                  ".docx")
+
+ft <- flextable(table1) %>%
+  autofit()
+
+my_doc <- read_docx()  %>% 
+  body_add_flextable(ft) 
+
+print (my_doc, target = my_path)
 ```
 
