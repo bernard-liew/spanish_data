@@ -82,7 +82,7 @@ measures <- list (msr("classif.auc"),
                   msr("classif.tnr"))
 # Set resample
 cv_inner <- rsmp("cv", folds = 5)
-cv_outer <- rsmp("cv", folds = 3)
+cv_outer <- rsmp("repeated_cv", folds = 3, repeats = 10)
 ```
 
 # Set logistic regression model
@@ -113,16 +113,16 @@ at_grln_logreg <-  AutoFSelector$new(
 future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
-rr_logreg <- resample(task, 
-                    at_grln_logreg, 
-                    cv_outer, 
+rr_logreg <- resample(task,
+                    at_grln_logreg,
+                    cv_outer,
                     store_models = TRUE)
 
 future:::ClusterRegistry("stop")
 
 future::plan("multisession")
 # Train learner
-at_grln_logreg$train (task, row_ids = train_id)
+at_grln_logreg$train (task)
 as.data.table (at_grln_logreg$archive)
 at_grln_logreg$fselect_result
 
@@ -168,20 +168,20 @@ at_grln_kknn <-  AutoTuner$new(
 future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
-rr_kknn <- resample(task, 
-                    at_grln_kknn, 
-                    cv_outer, 
+rr_kknn <- resample(task,
+                    at_grln_kknn,
+                    cv_outer,
                     store_models = TRUE)
 
 future:::ClusterRegistry("stop")
 
-future::plan("multisession")
-# Train learner
-at_grln_kknn$train (task, row_ids = train_id)
-at_grln_kknn$archive
-at_grln_kknn$tuning_result
-
-future:::ClusterRegistry("stop")
+# future::plan("multisession")
+# # Train learner
+# at_grln_kknn$train (task)
+# at_grln_kknn$archive
+# at_grln_kknn$tuning_result
+# 
+# future:::ClusterRegistry("stop")
 #grln_kknn_lnr$param_set$values <- at_grln_kknn$tuning_instance$result_learner_param_vals
 
 # Predict learner
@@ -253,20 +253,20 @@ at_grln_xgb <-  AutoTuner$new (
 future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
-rr_xgb <- resample(task, 
-                    at_grln_xgb, 
-                    cv_outer, 
+rr_xgb <- resample(task,
+                    at_grln_xgb,
+                    cv_outer,
                     store_models = TRUE)
 
 future:::ClusterRegistry("stop")
 
-future::plan("multisession")
-# test learner
-at_grln_xgb$train (task, row_ids = train_id)
-at_grln_xgb$archive
-at_grln_xgb$tuning_result
-
-future:::ClusterRegistry("stop")
+# future::plan("multisession")
+# # test learner
+# at_grln_xgb$train (task)
+# at_grln_xgb$archive
+# at_grln_xgb$tuning_result
+# 
+# future:::ClusterRegistry("stop")
 # prediction = at_grln_xgb$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
@@ -301,20 +301,20 @@ at_grln_lasso <-  AutoTuner$new (
 future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
-rr_lasso <- resample(task, 
-                    at_grln_lasso, 
-                    cv_outer, 
+rr_lasso <- resample(task,
+                    at_grln_lasso,
+                    cv_outer,
                     store_models = TRUE)
 
 future:::ClusterRegistry("stop")
 
-future::plan("multisession")
-# test learner
-at_grln_lasso$train (task, row_ids = train_id)
-at_grln_lasso$archive
-at_grln_lasso$tuning_result
-
-future:::ClusterRegistry("stop")
+# future::plan("multisession")
+# # test learner
+# at_grln_lasso$train (task, row_ids = train_id)
+# at_grln_lasso$archive
+# at_grln_lasso$tuning_result
+# 
+# future:::ClusterRegistry("stop")
 
 # prediction = at_grln_lasso$predict(task, row_ids = test_id)
 # prediction$score (measures)
@@ -358,20 +358,20 @@ at_grln_rf <- AutoTuner$new (
 future::plan(list("sequential", "multisession"))
 
 # Nested resampling for internal validation
-rr_rf <- resample(task, 
-                    at_grln_rf, 
-                    cv_outer, 
+rr_rf <- resample(task,
+                    at_grln_rf,
+                    cv_outer,
                     store_models = TRUE)
 
 future:::ClusterRegistry("stop")
 
-future::plan("multisession")
-# test learner
-at_grln_rf$train (task, row_ids = train_id)
-at_grln_rf$archive
-at_grln_rf$tuning_result
-
-future:::ClusterRegistry("stop")
+# future::plan("multisession")
+# # test learner
+# at_grln_rf$train (task)
+# at_grln_rf$archive
+# at_grln_rf$tuning_result
+# 
+# future:::ClusterRegistry("stop")
 # prediction = at_grln_rf$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
@@ -409,23 +409,23 @@ at_grln_net <- AutoTuner$new (
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_net <- resample(task, 
-                    at_grln_net, 
-                    cv_outer, 
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+rr_net <- resample(task,
+                    at_grln_net,
+                    cv_outer,
                     store_models = TRUE)
 
 future:::ClusterRegistry("stop")
 
-future::plan("multisession")
-# test learner
-at_grln_net$train (task, row_ids = train_id)
-at_grln_net$archive
-at_grln_net$tuning_result
-
-future:::ClusterRegistry("stop")
+# future::plan("multisession")
+# # test learner
+# at_grln_net$train (task)
+# at_grln_net$archive
+# at_grln_net$tuning_result
+# 
+# future:::ClusterRegistry("stop")
 # prediction = at_grln_net$predict(task, row_ids = test_id)
 # prediction$score (measures)
 # autoplot(prediction, type = "roc")
@@ -463,23 +463,23 @@ at_grln_svm <- AutoTuner$new (
   store_models = TRUE
 )
 # Runs the outer loop sequentially and the inner loop in parallel
-future::plan(list("sequential", "multisession"))
-
-# Nested resampling for internal validation
-rr_svm <- resample(task, 
-                    at_grln_svm, 
-                    cv_outer, 
+# future::plan(list("sequential", "multisession"))
+# 
+# # Nested resampling for internal validation
+rr_svm <- resample(task,
+                    at_grln_svm,
+                    cv_outer,
                     store_models = TRUE)
 
 future:::ClusterRegistry("stop")
 
-future::plan("multisession")
-# test learner
-at_grln_svm$train (task, row_ids = train_id)
-at_grln_svm$archive
-at_grln_svm$tuning_result
-
-future:::ClusterRegistry("stop")
+# future::plan("multisession")
+# # test learner
+# at_grln_svm$train (task)
+# at_grln_svm$archive
+# at_grln_svm$tuning_result
+# 
+# future:::ClusterRegistry("stop")
 
 # prediction = at_grln_svm$predict(task, row_ids = test_id)
 # prediction$score (measures)
@@ -497,17 +497,20 @@ rsmp_list <- list (rr_logreg = rr_logreg,
                    rr_net = rr_net,
                    rr_svm = rr_svm)
 
-model_list <- list (at_grln_logreg = at_grln_logreg,
-                   at_grln_kknn = at_grln_kknn,
-                   at_grln_xgb = at_grln_xgb,
-                   at_grln_lasso = at_grln_lasso,
-                   at_grln_rf = at_grln_rf,
-                   at_grln_net = at_grln_net,
-                   at_grln_svm = at_grln_svm)
+# model_list <- list (at_grln_logreg = at_grln_logreg,
+#                    at_grln_kknn = at_grln_kknn,
+#                    at_grln_xgb = at_grln_xgb,
+#                    at_grln_lasso = at_grln_lasso,
+#                    at_grln_rf = at_grln_rf,
+#                    at_grln_net = at_grln_net,
+#                    at_grln_svm = at_grln_svm)
+# 
+# saveRDS (model_list,
+#          "output/np_models.RDS")
 
-saveRDS (list (rsmp_list = rsmp_list,
-               model_list = model_list),
-         "output/np_result.RDS")
+saveRDS (rsmp_list,
+         "output/np_rsmp.RDS")
+
 
 ```
 
