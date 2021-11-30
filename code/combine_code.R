@@ -374,14 +374,14 @@ pred_plot1 <- perf.df %>%
 pred_plot1
 
 
-ggsave (filename = "fig1.png",
+ggsave (filename = "fig1.tiff",
         plot = pred_plot1,
-        device = "png",
+        device = "tiff",
         path = "manuscript",
         width = 8,
         height = 5,
         units = "in",
-        dpi = 150)
+        dpi = 300)
 
 perf.df <- perf.df %>%
   mutate_if(is.numeric, round, 3)

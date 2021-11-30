@@ -116,17 +116,17 @@ spineMiss(df %>%
 
 ```{r}
 np <- df %>% 
-  select (-c(imp_ap, imp_dis)) %>%
+  dplyr::select (-c(imp_ap, imp_dis)) %>%
   purrr::discard(~sum(is.na(.x))/length(.x)* 100 >= 50) %>%
   rename (outcome = imp_np)
 
 ap <- df %>% 
-  select (-c(imp_np, imp_dis)) %>%
+  dplyr::select (-c(imp_np, imp_dis)) %>%
   purrr::discard(~sum(is.na(.x))/length(.x)* 100 >= 50)%>%
   rename (outcome = imp_ap)
 
 dis <- df %>% 
-  select (-c(imp_np, imp_ap)) %>%
+  dplyr::select (-c(imp_np, imp_ap)) %>%
   purrr::discard(~sum(is.na(.x))/length(.x)* 100 >= 60)%>%
   rename (outcome = imp_dis)
 
@@ -197,23 +197,25 @@ saveRDS(dat,
 
 ```{r}
 df_desc <- bind_cols (df[,c(2:4)], df[names (df) %in% names (ap)]) %>%
-  select (-ID)
+  dplyr::select (-ID)
 ```
 
 ### Missing graph
 
 ```{r}
 f <- plot_missing (df_desc) +
-  theme_cowplot()
+  ggtitle("Barplot of the percentage missing observations of all variables") + 
+  theme_cowplot() + 
+  theme(legend.position = "none")
 
-ggsave ("sm_plot_1.png",
+ggsave ("sm_plot_1.pdf",
         f,
-        device = "png",
+        device = "pdf",
         path = "manuscript/",
         units = "in",
         width = 10,
         height = 6,
-        dpi = 200)
+        dpi = 300)
 ```
 
 ### Descriptives
