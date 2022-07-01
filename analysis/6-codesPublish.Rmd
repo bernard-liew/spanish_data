@@ -247,6 +247,7 @@ split_fit_predict <- function(data_index)
   spec <- MLmetrics::Specificity (dat_train$outcome, factor((best_fitted > 0.5) * 1))
   prec <- MLmetrics::Precision (dat_train$outcome, factor((best_fitted > 0.5) * 1))
   fbeta <- MLmetrics::FBeta_Score (dat_train$outcome, factor((best_fitted > 0.5) * 1))
+  class_train <- (best_fitted > 0.5) * 1
 
   metrics_train <- data.frame (
     auc = auc,
@@ -263,6 +264,7 @@ split_fit_predict <- function(data_index)
   spec <- MLmetrics::Specificity (dat_test$outcome, factor((best_pred > 0.5) * 1))
   prec <- MLmetrics::Precision (dat_test$outcome, factor((best_pred > 0.5) * 1))
   fbeta <- MLmetrics::FBeta_Score (dat_test$outcome, factor((best_pred > 0.5) * 1))
+  class_test <- (best_pred > 0.5) * 1
 
   metrics_test <- data.frame (
     auc = auc,
@@ -275,7 +277,9 @@ split_fit_predict <- function(data_index)
 
   return(list(best_model = best_model,
               metrics_train = metrics_train,
-              metrics_test = metrics_test))
+              class_train = class_train,
+              metrics_test = metrics_test,
+              class_test = class_test))
 
 }
 
@@ -364,7 +368,7 @@ saveRDS(bmr,
 perf <- readRDS("output/resample_perf.RDS")
 bmr <- readRDS("output/resampling_models.RDS")
 perf_step <- readRDS("output/stepwise_performance.RDS")
-
+perf_step2 <- readRDS("output/stepwise_performance2.RDS")
 ```
 
 # Extract results
@@ -551,5 +555,41 @@ plot_grid(plotlist = featimp_gg,
           nrow = 8)
 
 dev.off()
+```
+
+
+# Hypothesis testing
+
+```{r}
+bmr2 <- as.data.table(bmr) 
+
+
+
+o <- 8 # 1, 8, 15
+
+base_res <- perf_step2$ap$class_test# np, ap, dis
+
+
+p_list <- vector ("list", 6)
+
+for (n in seq_along (c(2:7))) {
+  
+  m <- n + o
+  
+  pred1 <- as.data.table (bmr2$prediction[[m]]) %>%
+    as.data.frame() %>%
+    dplyr::select (truth, response) %>%
+    mutate (acc = ifelse (truth == response, 1, 0)) %>%
+    pull (acc)
+  
+  xtabs <- table (base_res, pred1)
+  
+  p_list[[n]] <- mcnemar.test(xtabs)
+  
+  
+} 
+p_list
+
+
 ```
 

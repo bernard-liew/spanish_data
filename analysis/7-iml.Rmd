@@ -19,133 +19,221 @@ library (officer)
 library (flextable)
 
 # ML
-library(mlr3)
-library(mlr3learners)
-library(mlr3tuning)
-library(mlr3viz)
-library(mlr3fselect)
-library(mlr3pipelines)
-library(mlr3hyperband)
-library(iml)
-library(MASS)
-library(MLmetrics)
-
+library (MASS)# Step AIC
+library (ncvreg)
+library (abess)# Best subset regression
+library (glmnet) # Lasso
+library (mboost) 
+library (earth) # mars
+library (rpart)
 # Parallel
 library (future)
+
+# Run time
+
+library (tictoc)
+library (fscaret)
+
+# P value custom
+
+p_extract <- function (x) {
+    
+    p <- x[2, "Pr(>Chi)"]
+    return (p)
+}
+
+performance <- function (y_pred, y_true) {
+  
+  c("Accuracy" = MLmetrics::Accuracy(y_pred, y_true),
+    "AUC" = MLmetrics::AUC(y_pred, y_true),
+    "Precision" = MLmetrics::Precision(y_true, y_pred, positive = NULL),
+    "Sensitivity" = MLmetrics::Sensitivity(y_true, y_pred, positive = NULL),
+    "Specificity" = MLmetrics::Specificity(y_true, y_pred, positive = NULL))
+}
 ```
 
 # Import
 
 ```{r}
-bmr <- readRDS("output/resampling_models.RDS")
-
-bmr2 <- as.data.table(bmr) %>%
-  mutate (Model = mlr3misc::map (learner, "model"))
+# bmr <- readRDS("output/resampling_models.RDS")
+# 
+# bmr2 <- as.data.table(bmr) %>%
+#   mutate (Model = mlr3misc::map (learner, "model"))
 
 dat <- readRDS("output/df.RDS")
 
 np_dat <- bind_rows(dat$df_list$np$train_imp, dat$df_list$np$test_imp) #%>% group_by(outcome) %>% sample_n(50)
+
+np_train <- dat$df_list$np$train_imp
+np_test <- dat$df_list$np$test_imp
+
+
 ap_dat <- bind_rows(dat$df_list$ap$train_imp, dat$df_list$ap$test_imp) #%>% group_by(outcome) %>% sample_n(50)
 dis_dat <- bind_rows(dat$df_list$dis$train_imp, dat$df_list$dis$test_imp) #%>% group_by(outcome) %>% sample_n(50)
 
 df <- np_dat
 x <- df[which(names(df) != "outcome")][,-1]
 y <- df$outcome
-```
-
-# Extract neck pain model
-
-```{r}
-# Neck pain, ANN model
-m <- Predictor$new(bmr2$Model[[6]][[1]],
-                   data = x,
-                   y = y)
 
 ```
 
-# IMLs
-
-## PDP
+# Neck
 
 ```{r}
-pdp <- FeatureEffects$new(m,
-                             method = "pdp")
+o <- np_test$outcome
 
-plot(pdp, features = names (x))
-```
+# P value
 
-## ICE
-
-```{r}
-ice <- FeatureEffects$new(m,
-                             method = "ice")
-
-plot(ice, features = names (x)[1:5])
-```
+df <- np_train %>% 
+  dplyr::select (-ID) %>%
+  mutate (outcome = as.numeric(outcome) - 1) 
 
 
-## Shapley
+uni_names <- df %>%
+  dplyr::select(-outcome) %>%
+  map(~glm(df$outcome ~ .x, data = df)) %>% 
+  map(anova, test = "Chisq") %>%
+  map_dbl(p_extract) %>%
+  "<" (0.1) %>%
+  which() %>%
+  names()
 
-```{r}
-shapley <- Shapley$new(m, x.interest = x)
-plot(shapley)
-```
+form <- paste0("outcome~", paste0(uni_names, collapse = "+"))
 
+np_m1 <- glm (form,
+              data = df)
 
+summary (np_m1)
 
-```{r}
+p_m1 <- predict (np_m1, type = "response", newdata  = np_test[,-c(1:2)])
+p_m1 <- ifelse (p_m1 > 0.5, 1, 0)
 
-effect = FeatureEffects$new(m)
-df <- ap_dat
-x <- df[which(names(df) != "outcome")]
-y <- df$outcome
+res_m1 <- performance (y_pred = p_m1,
+                       y_true = o)
 
-for (n in seq_along (bmr2$Model)) {
+# Step AIC
 
-  bmr2$iml_model[[n]] <- Predictor$new(bmr2$Model[[n]][[1]], data = x, y = y)
+full_model <- glm (outcome ~ ., data = df, family = binomial(link = "logit"))
+np_m2 <- stepAIC (full_model,
+                      direction = "both")
+summary (np_m2 )
 
-}
+p_m2 <- predict (np_m2, type = "response", newdata  = np_test[,-c(1:2)])
+p_m2 <- ifelse (p_m2 > 0.5, 1, 0)
 
-for (n in seq_along (bmr2$Model)[-c(1, 8, 15)]) {
-
-  bmr2$effect [[n]] <- FeatureImp$new(bmr2$iml_model[[n]], loss = "ce")
-
-}
-
-featimp <- list()
-featimp_gg <- list()
-
-for (n in seq_along (bmr2$Model)[-c(1, 8, 15)]) {
-
-  featimp [[n]] <- FeatureImp$new(bmr2$iml_model[[n]], loss = "ce")
-
-}
+res_m2 <- performance (y_pred = p_m2,
+                       y_true = o)
 
 
-for (n in c(2, 3, 5, 6, 7, 9, 10, 12, 13, 14, 16, 17, 19, 20, 21)) {
+# Best subset regression
 
-  featimp_gg[[n]] <- featimp[[n]]$plot()
+X_train <-  model.matrix(outcome ~., data = df)[,-1]
+Y_train <- as.numeric (df$outcome) 
 
-}
+X_test <-  model.matrix(outcome ~., data = np_test[,-c(1)])[,-1]
+Y_test <- as.numeric (np_test$outcome) -1
 
-mody_gg <- function (x) {
+np_m3 <- abess(x = X_train,
+                   y = Y_train,
+                   family = "binomial", 
+                   tune.type = "cv"
+                   )
 
-  x +
-    xlim (0.8, 2.5)
-}
+best_np_m3  <- np_m3 [["best.size"]]
+print(best_np_m3 )
 
-featimp_gg <- featimp_gg %>%
-  purrr::discard(is.null) %>%
-  purrr::map (~ .x +
-                xlim (0.8, 3) +
-                theme_cowplot() +
-                theme (axis.text.y = element_text(size = 10)))
+head(coef(np_m3 , support.size = best_np_m3 , sparse = FALSE))
 
-pdf ("output/featimp.pdf", height = 20, width = 8)
-plot_grid(plotlist = featimp_gg,
-          ncol = 2,
-          nrow = 8)
+p_m3 <- predict (np_m3, type = "response", newx  = X_test, support.size = best_np_m3)
+p_m3<- as.numeric (ifelse (p_m3 > 0.5, 1, 0))
 
-dev.off()
+res_m3 <- performance (y_pred = p_m3,
+                       y_true = Y_test)
+
+# Lasso
+
+np_m4 <- cv.ncvreg(X_train,
+                       Y_train,
+                       penalty = "lasso",
+                       family = "binomial")
+plot(np_m4)
+coef(np_m4, s = "lambda.min")[coef(np_m4, s = "lambda.min") != 0]
+
+p_m4 <- predict (np_m4, type = "response", X  = X_test, lambda = np_m4$lambda.min)
+p_m4<- ifelse (p_m4 > 0.5, 1, 0)
+
+res_m4 <- performance (y_pred = p_m4,
+                       y_true = Y_test)
+
+
+# NCVreg
+
+np_m5 <- cv.ncvreg(X,
+                     Y,
+                     family = "binomial")
+plot(np_m5 )
+coef(np_m5, s = "lambda.min")[coef(np_m5, s = "lambda.min") != 0]
+
+p_m5 <- predict (np_m5, type = "response", X  = X_test, lambda = np_m5$lambda.min)
+p_m5<- ifelse (p_m5 > 0.5, 1, 0)
+
+res_m5 <- performance (y_pred = p_m5,
+                       y_true = Y_test)
+
+
+# mboost
+
+df1 <- df %>%
+  mutate (outcome = factor (outcome)) %>%
+  mutate_if(is.numeric, scale, center = TRUE, scale = TRUE)
+
+np_m6  <- glmboost(outcome ~.,
+                      data = df1,
+                      control = boost_control(mstop = 10000, nu = 0.001),
+                      family = AdaExp()) # coefficients from Binomial(link = "logit") are 1/2 
+
+cv10f <- cv(model.weights(np_m6 ), type = "kfold")
+
+cvm <- cvrisk(np_m6 , folds = cv10f)
+plot (cvm)
+np_m6 [mstop(cvm)]
+
+summary (np_m6 [mstop(cvm)])
+
+p_m6 <- predict (np_m6, type = "response", newdata  = np_test[,-c(1:2)])
+p_m6<- ifelse (p_m6 > 0.5, 1, 0)
+
+res_m6 <- performance (y_pred = p_m6,
+                       y_true = Y_test)
+
+# MARS
+
+np_m7 <- earth (outcome ~.,
+                   data = df,
+                   glm=list(family=binomial))
+
+summary (np_m7)
+
+p_m7 <- predict (np_m7, type = "response", newdata  = np_test[,-c(1:2)])
+p_m7<- ifelse (p_m7 > 0.5, 1, 0)
+
+res_m7 <- performance (y_pred = p_m7,
+                       y_true = Y_test)
+
+# Tree
+
+np_m8 <- rpart (factor (outcome) ~ .,
+                control = rpart.control(xval = 10),
+                data = df)
+
+
+rpart.plot::rpart.plot (np_m8)
+
+p_m8 <- predict (np_m8, type = "prob", newdata  = newx)
+p_m8<- ifelse (p_m6 > 0.5, 1, 0)
+
+res_m8 <- performance (y_pred = p_m8,
+                       y_true = Y_test)
+
 ```
 
