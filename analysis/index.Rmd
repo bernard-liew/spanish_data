@@ -12,4 +12,4 @@ Welcome to my research website.
 
 [This code performs reporting of results](6-codesPublish.html)
 
-[This code performs reporting of automatic variable selection](7-iml _2.html)
+[This code performs reporting of automatic variable selection](7-iml-_2.html)
