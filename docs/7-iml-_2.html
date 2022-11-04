@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Bernard" />
+
+<meta name="date" content="2021-12-02" />
+
+<title>7-iml</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">spanish_data</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">7-iml</h1>
+<h4 class="author">Bernard</h4>
+<h4 class="date">2021-12-02</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2022-11-04
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>spanish_data/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version
+1.6.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210329code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20210329)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210329code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210329)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcombernardliewspanishdatatree4e764db0b61a41dae30bf2d0eda81f752127e82ftargetblank4e764dba">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/bernard-liew/spanish_data/tree/4e764db0b61a41dae30bf2d0eda81f752127e82f" target="_blank">4e764db</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcombernardliewspanishdatatree4e764db0b61a41dae30bf2d0eda81f752127e82ftargetblank4e764dba"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/bernard-liew/spanish_data/tree/4e764db0b61a41dae30bf2d0eda81f752127e82f" target="_blank">4e764db</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+    Ignored:    manuscript/
+    Ignored:    manuscript2/
+    Ignored:    output/ap_iml.RDS
+    Ignored:    output/ap_models.RDS
+    Ignored:    output/ap_result.RDS
+    Ignored:    output/dis_iml.RDS
+    Ignored:    output/dis_models.RDS
+    Ignored:    output/dis_result.RDS
+    Ignored:    output/np_iml.RDS
+    Ignored:    output/np_models.RDS
+    Ignored:    output/np_result.RDS
+    Ignored:    output/report_files/
+    Ignored:    output/resample_perf.RDS
+    Ignored:    output/resampling_models.RDS
+    Ignored:    output/stepwise_performance.RDS
+    Ignored:    output/stepwise_performance2.RDS
+
+Untracked files:
+    Untracked:  analysis/7-iml-_2.Rmd
+    Untracked:  analysis/8-descriptive.Rmd
+    Untracked:  code/add_models.R
+
+Unstaged changes:
+    Modified:   analysis/7-iml _2.Rmd
+    Modified:   analysis/index.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/7-iml _2.Rmd</code>) and HTML
+(<code>docs/7-iml _2.html</code>) files. If you’ve configured a remote
+Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/bernard-liew/spanish_data/blob/4e764db0b61a41dae30bf2d0eda81f752127e82f/analysis/7-iml _2.Rmd" target="_blank">4e764db</a>
+</td>
+<td>
+Bernard
+</td>
+<td>
+2022-09-16
+</td>
+<td>
+added interpretable codes
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="load-package" class="section level1">
+<h1>Load package</h1>
+<pre class="r"><code># Helper
+library(tidyverse)
+library(data.table)
+library (cowplot)
+library (officer)
+library (flextable)
+library (dataPreparation)
+# ML
+library (MASS)# Step AIC
+library (ncvreg)
+library (abess)# Best subset regression
+library (glmnet) # Lasso
+library (mboost) 
+library (earth) # mars
+library (SignifReg)
+# Parallel
+library (future)
+
+# P value custom
+
+p_extract &lt;- function (x) {
+    
+    p &lt;- x[2, &quot;Pr(&gt;Chi)&quot;]
+    return (p)
+}
+
+performance &lt;- function (y_pred, y_true) {
+  
+  c(&quot;Accuracy&quot; = MLmetrics::Accuracy(y_pred, y_true),
+    &quot;AUC&quot; = MLmetrics::AUC(y_pred, y_true),
+    &quot;Precision&quot; = MLmetrics::Precision(y_true, y_pred, positive = NULL),
+    &quot;Sensitivity&quot; = MLmetrics::Sensitivity(y_true, y_pred, positive = NULL),
+    &quot;Specificity&quot; = MLmetrics::Specificity(y_true, y_pred, positive = NULL))
+}</code></pre>
+</div>
+<div id="import" class="section level1">
+<h1>Import</h1>
+<pre class="r"><code># bmr &lt;- readRDS(&quot;output/resampling_models.RDS&quot;)
+# 
+# bmr2 &lt;- as.data.table(bmr) %&gt;%
+#   mutate (Model = mlr3misc::map (learner, &quot;model&quot;))
+
+dat &lt;- readRDS(&quot;output/df.RDS&quot;)
+
+np_train &lt;- dat$df_list$np$train_imp[,-1] %&gt;% dplyr::select (-matches (&quot;clinic&quot;))
+np_test &lt;- dat$df_list$np$test_imp[,-1]%&gt;% dplyr::select (-matches (&quot;clinic&quot;))
+np_dat &lt;- bind_rows(np_train, np_test)
+
+ap_train &lt;- dat$df_list$ap$train_imp[,-1] %&gt;% dplyr::select (-matches (&quot;clinic&quot;))
+ap_test &lt;- dat$df_list$ap$test_imp[,-1]%&gt;% dplyr::select (-matches (&quot;clinic&quot;))
+ap_dat &lt;- bind_rows(ap_train, ap_test)
+
+dis_train &lt;- dat$df_list$dis$train_imp[,-1]%&gt;% dplyr::select (-matches (&quot;clinic&quot;))
+dis_test &lt;- dat$df_list$dis$test_imp[,-1]%&gt;% dplyr::select (-matches (&quot;clinic&quot;))
+dis_dat &lt;- bind_rows(dis_train, dis_test)</code></pre>
+</div>
+<div id="neck" class="section level1">
+<h1>Neck</h1>
+<div id="scaling" class="section level2">
+<h2>Scaling</h2>
+<pre class="r"><code>scales &lt;- build_scales(np_train)
+np_train &lt;- fast_scale(np_train, scales = scales)
+np_test &lt;- fast_scale(np_test, scales = scales)</code></pre>
+<pre class="r"><code>o &lt;- np_test$outcome
+
+# P value
+
+df &lt;- np_train %&gt;% 
+  mutate (outcome = as.numeric(outcome) - 1) 
+
+
+uni_names &lt;- df %&gt;%
+  dplyr::select(-outcome) %&gt;%
+  map(~glm(df$outcome ~ .x, data = df, family = binomial())) %&gt;% 
+  map(anova, test = &quot;Chisq&quot;) %&gt;%
+  map_dbl(p_extract) %&gt;%
+  &quot;&lt;&quot; (0.1) %&gt;%
+  which() %&gt;%
+  names()
+
+form &lt;- paste0(&quot;outcome~&quot;, paste0(uni_names, collapse = &quot;+&quot;))
+
+fullmodel &lt;- glm(form, data = df, family = binomial)
+nullmodel &lt;- glm(outcome ~1, data = df, family = binomial)
+
+scope = list(lower=formula(nullmodel ),upper=formula(fullmodel))
+
+np_m1 = SignifReg(fullmodel,
+                       scope=scope, 
+                       alpha = 0.05,
+                       direction = &quot;both&quot;,
+                       criterion = &quot;p-value&quot;,
+                       adjust.method = &quot;none&quot;,
+                       trace=FALSE)
+
+p_m1 &lt;- predict (np_m1, type = &quot;response&quot;, newdata  = np_test %&gt;% dplyr::select (-outcome))
+p_m1 &lt;- ifelse (p_m1 &gt; 0.5, 1, 0)
+
+res_m1 &lt;- performance (y_pred = p_m1,
+                       y_true = o)
+
+# Step AIC
+
+full_model &lt;- glm (outcome ~ ., data = df, family = binomial())
+np_m2 &lt;- stepAIC (full_model,
+                      direction = &quot;both&quot;)
+summary (np_m2 )
+
+p_m2 &lt;- predict (np_m2, type = &quot;response&quot;, newdata  = np_test %&gt;% dplyr::select (-outcome))
+p_m2 &lt;- ifelse (p_m2 &gt; 0.5, 1, 0)
+
+res_m2 &lt;- performance (y_pred = p_m2,
+                       y_true = o)
+
+
+# Best subset regression
+
+X_train &lt;-  model.matrix(outcome ~., data = df)[,-1]
+Y_train &lt;- as.numeric (df$outcome) 
+
+X_test &lt;-  model.matrix(outcome ~., data = np_test)[,-1]
+Y_test &lt;- as.numeric (np_test$outcome) -1
+
+np_m3 &lt;- abess(x = X_train,
+                   y = Y_train,
+                   family = &quot;binomial&quot;, 
+                   tune.type = &quot;cv&quot;
+                   )
+
+best_np_m3  &lt;- np_m3 [[&quot;best.size&quot;]]
+print(best_np_m3 )
+
+coef(np_m3 , support.size = best_np_m3 , sparse = FALSE)
+
+p_m3 &lt;- predict (np_m3, type = &quot;response&quot;, newx  = X_test, support.size = best_np_m3)
+p_m3&lt;- as.numeric (ifelse (p_m3 &gt; 0.5, 1, 0))
+
+res_m3 &lt;- performance (y_pred = p_m3,
+                       y_true = Y_test)
+
+# Lasso
+
+np_m4 &lt;- cv.ncvreg(X_train,
+                       Y_train,
+                       penalty = &quot;lasso&quot;,
+                       family = &quot;binomial&quot;)
+plot(np_m4)
+coef_np_m4 &lt;- coef(np_m4, s = &quot;lambda.min&quot;)[coef(np_m4, s = &quot;lambda.min&quot;) != 0]
+
+p_m4 &lt;- predict (np_m4, type = &quot;response&quot;, X  = X_test, lambda = np_m4$lambda.min)
+p_m4&lt;- ifelse (p_m4 &gt; 0.5, 1, 0)
+
+res_m4 &lt;- performance (y_pred = p_m4,
+                       y_true = Y_test)
+
+## Refit lasso
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_np_m4)]
+
+
+np_m4_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+
+
+# NCVreg
+
+np_m5 &lt;- cv.ncvreg(X_train,
+                     Y_train,
+                     type = &quot;MCP&quot;,
+                     family = &quot;binomial&quot;)
+plot(np_m5 )
+coef_np_m5 &lt;- coef(np_m5, s = &quot;lambda.min&quot;)[coef(np_m5, s = &quot;lambda.min&quot;) != 0]
+
+p_m5 &lt;- predict (np_m5, type = &quot;response&quot;, X  = X_test, lambda = np_m5$lambda.min)
+p_m5&lt;- ifelse (p_m5 &gt; 0.5, 1, 0)
+
+res_m5 &lt;- performance (y_pred = p_m5,
+                       y_true = Y_test)
+
+## Refit NCVreg
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_np_m5)]
+
+
+np_m5_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+coef(np_m5_refit)
+
+# mboost
+
+df1 &lt;- df %&gt;%
+  mutate (outcome = factor (outcome, levels=0:1)) 
+
+np_m6  &lt;- glmboost(outcome ~.,
+                      data = df1,
+                      control = boost_control(mstop = 1000, nu = 0.1),
+                      family = Binomial(type = c(&quot;glm&quot;))) # coefficients from Binomial(link = &quot;logit&quot;) are 1/2 
+
+# cv10f &lt;- cv(model.weights(np_m6), type = &quot;kfold&quot;)
+
+cvm &lt;- cvrisk(np_m6) # , folds = cv10f)
+plot (cvm)
+np_m6 [mstop(cvm)]
+
+summary (np_m6 [mstop(cvm)])
+
+p_m6 &lt;- predict (np_m6, type = &quot;class&quot;, 
+                 newdata  = np_test %&gt;% dplyr::select (-outcome))
+#p_m6&lt;- ifelse (p_m6 &gt; 0.5, 1, 0)
+
+res_m6 &lt;- performance (y_pred = p_m6,
+                       y_true = Y_test)
+
+## Refit mboost
+
+coef_np_m6 &lt;- coef(np_m6)
+
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_np_m6)]
+
+
+np_m6_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+coef(np_m6_refit)
+
+# MARS - linear
+
+np_m7 &lt;- earth (outcome ~.,
+                   data = df,
+                   linpreds=TRUE,
+                   glm=list(family=binomial))
+
+summary (np_m7)
+
+p_m7 &lt;- predict (np_m7, type = &quot;response&quot;, newdata  = np_test %&gt;% dplyr::select (-outcome))
+p_m7&lt;- ifelse (p_m7 &gt; 0.5, 1, 0)
+
+res_m7 &lt;- performance (y_pred = p_m7,
+                       y_true = Y_test)</code></pre>
+</div>
+<div id="coef" class="section level2">
+<h2>Coef</h2>
+<pre class="r"><code>coef_np1 &lt;- data.frame (variables = names (coef(np_m1)),
+                        pval = coef(np_m1))
+coef_np2 &lt;- data.frame (variables = names (coef(np_m2)),
+                        stepaic = coef(np_m2))
+coef_np3 &lt;- data.frame (variables = rownames (coef(np_m3 , support.size = best_np_m3 , sparse = FALSE)),
+                        bestsubset = coef(np_m3 , support.size = best_np_m3 , sparse = FALSE)[,1])
+coef_np4 &lt;- data.frame (variables = names (coef(np_m4, s = &quot;lambda.min&quot;)[coef(np_m4, s = &quot;lambda.min&quot;) != 0]),
+                        lasso = coef(np_m4, s = &quot;lambda.min&quot;)[coef(np_m4, s = &quot;lambda.min&quot;) != 0])
+coef_np4_refit &lt;- data.frame (variables = names (coef(np_m4_refit)),
+                        lasso_refit = coef(np_m4_refit))
+coef_np5 &lt;- data.frame (variables = names (coef(np_m5, s = &quot;lambda.min&quot;)[coef(np_m5, s = &quot;lambda.min&quot;) != 0]),
+                        mcp = coef(np_m5, s = &quot;lambda.min&quot;)[coef(np_m5, s = &quot;lambda.min&quot;) != 0])
+coef_np5_refit &lt;- data.frame (variables = names (coef(np_m5_refit)),
+                        mcp_refit = coef(np_m5_refit))
+coef_np6 &lt;- data.frame (variables = names (coef(np_m6)),
+                        mboost = coef(np_m6))
+coef_np6_refit &lt;- data.frame (variables = names (coef(np_m6_refit)),
+                        mboost_refit = coef(np_m6_refit))
+
+coef_np7 &lt;- data.frame (variables = names (coef(np_m7)),
+                        mars = coef(np_m7))
+
+
+np_predictors &lt;- data.frame(variables = colnames (X_train)) %&gt;%
+  left_join(coef_np1, by = &quot;variables&quot;)  %&gt;%
+  left_join(coef_np2, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_np3, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_np4, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_np4_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_np5, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_np5_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_np6, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_np6_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_np7, by = &quot;variables&quot;) %&gt;%
+  mutate_all(~ifelse(.x == 0, NA, .x)) %&gt;%
+  mutate_if(is.numeric, round, 3) %&gt;%
+  mutate (remove = rowSums(is.na(.[,-c(1, 6, 8, 10)])),
+          keep = ifelse (remove == 0, &quot;Y&quot;, &quot;N&quot;))
+
+np_predictors_best &lt;- np_predictors %&gt;%
+  filter (keep == &quot;Y&quot;)</code></pre>
+</div>
+<div id="performance" class="section level2">
+<h2>Performance</h2>
+<pre class="r"><code>np_res &lt;- 
+cbind(Model = c(&quot;pval&quot;, &quot;stepaic&quot;, &quot;bestsubset&quot;,  &quot;lasso&quot;, &quot;ncvreg&quot;, &quot;mboost&quot;, &quot;mars&quot;), 
+      as.data.frame(do.call(&quot;rbind&quot;, list(res_m1, res_m2, res_m3, res_m4, res_m5, res_m6, res_m7)))
+)</code></pre>
+</div>
+<div id="save" class="section level2">
+<h2>Save</h2>
+<pre class="r"><code>np_all_models &lt;- list (&quot;pval&quot; = np_m1, 
+                       &quot;stepaic&quot; = np_m2, 
+                       &quot;bestsubset&quot; = np_m3, 
+                       &quot;lasso&quot;= np_m4, 
+                       &quot;lasso_refit&quot;= np_m4_refit, 
+                       &quot;ncvreg&quot;= np_m5,
+                       &quot;ncvreg_refit&quot;= np_m5_refit,  
+                       &quot;mboost&quot;= np_m6, 
+                       &quot;mboost_refit&quot;= np_m6_refit,
+                       &quot;mars&quot;= np_m7)
+
+np &lt;- list (performance = np_res,
+            predictors = np_predictors,
+            models = np_all_models)
+
+saveRDS(np, &quot;output/np_iml.RDS&quot;)</code></pre>
+</div>
+</div>
+<div id="arm" class="section level1">
+<h1>Arm</h1>
+<div id="scaling-1" class="section level2">
+<h2>Scaling</h2>
+<pre class="r"><code>scales &lt;- build_scales(ap_train)
+ap_train &lt;- fast_scale(ap_train, scales = scales)
+ap_test &lt;- fast_scale(ap_test, scales = scales)</code></pre>
+<pre class="r"><code>o &lt;- ap_test$outcome
+
+# P value
+
+df &lt;- ap_train %&gt;% 
+  mutate (outcome = as.numeric(outcome) - 1) 
+
+
+uni_names &lt;- df %&gt;%
+  dplyr::select(-outcome) %&gt;%
+  map(~glm(df$outcome ~ .x, data = df, family = binomial())) %&gt;% 
+  map(anova, test = &quot;Chisq&quot;) %&gt;%
+  map_dbl(p_extract) %&gt;%
+  &quot;&lt;&quot; (0.1) %&gt;%
+  which() %&gt;%
+  names()
+
+form &lt;- paste0(&quot;outcome~&quot;, paste0(uni_names, collapse = &quot;+&quot;))
+
+fullmodel &lt;- glm(formula(form), data = df, family = binomial)
+nullmodel &lt;- glm(outcome ~1, data = df, family = binomial)
+
+scope = list(lower=formula(nullmodel ),upper=formula(fullmodel))
+
+ap_m1 = SignifReg(fullmodel,
+                       scope=scope, 
+                       alpha = 0.05,
+                       direction = &quot;both&quot;,
+                       criterion = &quot;p-value&quot;,
+                       adjust.method = &quot;none&quot;,
+                       trace=FALSE)
+
+p_m1 &lt;- predict (ap_m1, type = &quot;response&quot;, newdata  = np_test %&gt;% dplyr::select (-outcome))
+p_m1 &lt;- ifelse (p_m1 &gt; 0.5, 1, 0)
+
+res_m1 &lt;- performance (y_pred = p_m1,
+                       y_true = o)
+# Step AIC
+
+full_model &lt;- glm (outcome ~ ., data = df, family = binomial())
+ap_m2 &lt;- stepAIC (full_model,
+                      direction = &quot;both&quot;)
+summary (ap_m2 )
+
+p_m2 &lt;- predict (ap_m2, type = &quot;response&quot;, newdata  = ap_test %&gt;% dplyr::select (-outcome))
+p_m2 &lt;- ifelse (p_m2 &gt; 0.5, 1, 0)
+
+res_m2 &lt;- performance (y_pred = p_m2,
+                       y_true = o)
+
+
+# Best subset regression
+
+X_train &lt;-  model.matrix(outcome ~., data = df)[,-1]
+Y_train &lt;- as.numeric (df$outcome) 
+
+X_test &lt;-  model.matrix(outcome ~., data = ap_test)[,-1]
+Y_test &lt;- as.numeric (ap_test$outcome) -1
+
+ap_m3 &lt;- abess(x = X_train,
+                   y = Y_train,
+                   family = &quot;binomial&quot;, 
+                   tune.type = &quot;cv&quot;
+                   )
+
+best_ap_m3  &lt;- ap_m3 [[&quot;best.size&quot;]]
+print(best_ap_m3 )
+
+coef(ap_m3 , support.size = best_ap_m3 , sparse = FALSE)
+
+p_m3 &lt;- predict (ap_m3, type = &quot;response&quot;, newx  = X_test, support.size = best_ap_m3)
+p_m3&lt;- as.numeric (ifelse (p_m3 &gt; 0.5, 1, 0))
+
+res_m3 &lt;- performance (y_pred = p_m3,
+                       y_true = Y_test)
+
+# Lasso
+
+ap_m4 &lt;- cv.ncvreg(X_train,
+                       Y_train,
+                       penalty = &quot;lasso&quot;,
+                       family = &quot;binomial&quot;)
+plot(ap_m4)
+coef_ap_m4 &lt;- coef(ap_m4, s = &quot;lambda.min&quot;)[coef(ap_m4, s = &quot;lambda.min&quot;) != 0]
+
+p_m4 &lt;- predict (ap_m4, type = &quot;response&quot;, X  = X_test, lambda = ap_m4$lambda.min)
+p_m4&lt;- ifelse (p_m4 &gt; 0.5, 1, 0)
+
+res_m4 &lt;- performance (y_pred = p_m4,
+                       y_true = Y_test)
+
+## Refit lasso
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_ap_m4)]
+
+
+ap_m4_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+
+
+# NCVreg
+
+ap_m5 &lt;- cv.ncvreg(X_train,
+                     Y_train,
+                     type = &quot;MCP&quot;,
+                     family = &quot;binomial&quot;)
+plot(ap_m5 )
+coef_ap_m5 &lt;- coef(ap_m5, s = &quot;lambda.min&quot;)[coef(ap_m5, s = &quot;lambda.min&quot;) != 0]
+
+p_m5 &lt;- predict (ap_m5, type = &quot;response&quot;, X  = X_test, lambda = ap_m5$lambda.min)
+p_m5&lt;- ifelse (p_m5 &gt; 0.5, 1, 0)
+
+res_m5 &lt;- performance (y_pred = p_m5,
+                       y_true = Y_test)
+
+## Refit NCVreg
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_ap_m5)]
+
+
+ap_m5_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+coef(ap_m5_refit)
+
+# mboost
+
+df1 &lt;- df %&gt;%
+  mutate (outcome = factor (outcome, levels=0:1)) 
+
+ap_m6  &lt;- glmboost(outcome ~.,
+                      data = df1,
+                      control = boost_control(mstop = 1000, nu = 0.1),
+                      family = Binomial(type = c(&quot;glm&quot;))) # coefficients from Binomial(link = &quot;logit&quot;) are 1/2 
+
+# cv10f &lt;- cv(model.weights(ap_m6), type = &quot;kfold&quot;)
+
+cvm &lt;- cvrisk(ap_m6) # , folds = cv10f)
+plot (cvm)
+ap_m6 [mstop(cvm)]
+
+summary (ap_m6 [mstop(cvm)])
+
+p_m6 &lt;- predict (ap_m6, type = &quot;class&quot;, 
+                 newdata  = ap_test %&gt;% dplyr::select (-outcome))
+#p_m6&lt;- ifelse (p_m6 &gt; 0.5, 1, 0)
+
+res_m6 &lt;- performance (y_pred = p_m6,
+                       y_true = Y_test)
+
+## Refit mboost
+
+coef_ap_m6 &lt;- coef(ap_m6)
+
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_ap_m6)]
+
+
+ap_m6_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+coef(ap_m6_refit)
+
+# MARS - linear
+
+ap_m7 &lt;- earth (outcome ~.,
+                   data = df,
+                   linpreds=TRUE,
+                   glm=list(family=binomial))
+
+summary (ap_m7)
+
+p_m7 &lt;- predict (ap_m7, type = &quot;response&quot;, newdata  = ap_test %&gt;% dplyr::select (-outcome))
+p_m7&lt;- ifelse (p_m7 &gt; 0.5, 1, 0)
+
+res_m7 &lt;- performance (y_pred = p_m7,
+                       y_true = Y_test)</code></pre>
+</div>
+<div id="coef-1" class="section level2">
+<h2>Coef</h2>
+<pre class="r"><code>coef_ap1 &lt;- data.frame (variables = names (coef(ap_m1)),
+                        pval = coef(ap_m1))
+coef_ap2 &lt;- data.frame (variables = names (coef(ap_m2)),
+                        stepaic = coef(ap_m2))
+coef_ap3 &lt;- data.frame (variables = rownames (coef(ap_m3 , support.size = best_ap_m3 , sparse = FALSE)),
+                        bestsubset = coef(ap_m3 , support.size = best_ap_m3 , sparse = FALSE)[,1])
+coef_ap4 &lt;- data.frame (variables = names (coef(ap_m4, s = &quot;lambda.min&quot;)[coef(ap_m4, s = &quot;lambda.min&quot;) != 0]),
+                        lasso = coef(ap_m4, s = &quot;lambda.min&quot;)[coef(ap_m4, s = &quot;lambda.min&quot;) != 0])
+coef_ap4_refit &lt;- data.frame (variables = names (coef(ap_m4_refit)),
+                        lasso_refit = coef(ap_m4_refit))
+coef_ap5 &lt;- data.frame (variables = names (coef(ap_m5, s = &quot;lambda.min&quot;)[coef(ap_m5, s = &quot;lambda.min&quot;) != 0]),
+                        mcp = coef(ap_m5, s = &quot;lambda.min&quot;)[coef(ap_m5, s = &quot;lambda.min&quot;) != 0])
+coef_ap5_refit &lt;- data.frame (variables = names (coef(ap_m5_refit)),
+                        mcp_refit = coef(ap_m5_refit))
+coef_ap6 &lt;- data.frame (variables = names (coef(ap_m6)),
+                        mboost = coef(ap_m6))
+coef_ap6_refit &lt;- data.frame (variables = names (coef(ap_m6_refit)),
+                        mboost_refit = coef(ap_m6_refit))
+
+coef_ap7 &lt;- data.frame (variables = names (coef(ap_m7)),
+                        mars = coef(ap_m7))
+
+
+ap_predictors &lt;- data.frame(variables = colnames (X_train)) %&gt;%
+  left_join(coef_ap1, by = &quot;variables&quot;)  %&gt;%
+  left_join(coef_ap2, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_ap3, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_ap4, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_ap4_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_ap5, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_ap5_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_ap6, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_ap6_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_ap7, by = &quot;variables&quot;) %&gt;%
+  mutate_all(~ifelse(.x == 0, NA, .x)) %&gt;%
+  mutate_if(is.numeric, round, 3) %&gt;%
+  mutate (remove = rowSums(is.na(.[,-c(1, 6, 8, 10)])),
+          keep = ifelse (remove == 0, &quot;Y&quot;, &quot;N&quot;))
+
+ap_predictors_best &lt;- ap_predictors %&gt;%
+  filter (keep == &quot;Y&quot;)</code></pre>
+</div>
+<div id="performance-1" class="section level2">
+<h2>Performance</h2>
+<pre class="r"><code>ap_res &lt;- 
+cbind(Model = c(&quot;pval&quot;, &quot;stepaic&quot;, &quot;bestsubset&quot;,  &quot;lasso&quot;, &quot;ncvreg&quot;, &quot;mboost&quot;, &quot;mars&quot;), 
+      as.data.frame(do.call(&quot;rbind&quot;, list(res_m1, res_m2, res_m3, res_m4, res_m5, res_m6, res_m7)))
+)</code></pre>
+</div>
+<div id="save-1" class="section level2">
+<h2>Save</h2>
+<pre class="r"><code>ap_all_models &lt;- list (&quot;pval&quot; = ap_m1, 
+                       &quot;stepaic&quot; = ap_m2, 
+                       &quot;bestsubset&quot; = ap_m3, 
+                       &quot;lasso&quot;= ap_m4, 
+                       &quot;lasso_refit&quot;= ap_m4_refit, 
+                       &quot;ncvreg&quot;= ap_m5,
+                       &quot;ncvreg_refit&quot;= ap_m5_refit,  
+                       &quot;mboost&quot;= ap_m6, 
+                       &quot;mboost_refit&quot;= ap_m6_refit,
+                       &quot;mars&quot;= ap_m7)
+
+ap &lt;- list (performance = ap_res,
+            predictors = ap_predictors,
+            models = ap_all_models)
+
+saveRDS(ap, &quot;output/ap_iml.RDS&quot;)</code></pre>
+</div>
+</div>
+<div id="disability" class="section level1">
+<h1>Disability</h1>
+<div id="scaling-2" class="section level2">
+<h2>Scaling</h2>
+<pre class="r"><code>scales &lt;- build_scales(dis_train)
+dis_train &lt;- fast_scale(dis_train, scales = scales)
+dis_test &lt;- fast_scale(dis_test, scales = scales)</code></pre>
+<pre class="r"><code>o &lt;- dis_test$outcome
+
+# P value
+
+df &lt;- dis_train %&gt;% 
+  mutate (outcome = as.numeric(outcome) - 1)  
+
+
+uni_names &lt;- df %&gt;%
+  dplyr::select(-outcome) %&gt;%
+  map(~glm(df$outcome ~ .x, data = df, family = binomial())) %&gt;% 
+  map(anova, test = &quot;Chisq&quot;) %&gt;%
+  map_dbl(p_extract) %&gt;%
+  &quot;&lt;&quot; (0.1) %&gt;%
+  which() %&gt;%
+  names()
+
+form &lt;- paste0(&quot;outcome~&quot;, paste0(uni_names, collapse = &quot;+&quot;))
+
+fullmodel &lt;- glm(form, data = df, family = binomial)
+nullmodel &lt;- glm(outcome ~1, data = df, family = binomial)
+
+scope = list(lower=formula(nullmodel ),upper=formula(fullmodel))
+
+dis_m1 = SignifReg(fullmodel,
+                       scope=scope, 
+                       alpha = 0.5,
+                       direction = &quot;both&quot;,
+                       criterion = &quot;p-value&quot;,
+                       adjust.method = &quot;none&quot;,
+                       trace=FALSE)
+
+p_m1 &lt;- predict (dis_m1, type = &quot;response&quot;, newdata  = np_test %&gt;% dplyr::select (-outcome))
+p_m1 &lt;- ifelse (p_m1 &gt; 0.5, 1, 0)
+
+res_m1 &lt;- performance (y_pred = p_m1,
+                       y_true = o)
+
+# Step AIC
+
+full_model &lt;- glm (outcome ~ ., data = df, family = binomial())
+dis_m2 &lt;- stepAIC (full_model,
+                      direction = &quot;both&quot;)
+summary (dis_m2 )
+
+p_m2 &lt;- predict (dis_m2, type = &quot;response&quot;, newdata  = dis_test %&gt;% dplyr::select (-outcome))
+p_m2 &lt;- ifelse (p_m2 &gt; 0.5, 1, 0)
+
+res_m2 &lt;- performance (y_pred = p_m2,
+                       y_true = o)
+
+
+# Best subset regression
+
+X_train &lt;-  model.matrix(outcome ~., data = df)[,-1]
+Y_train &lt;- as.numeric (df$outcome) 
+
+X_test &lt;-  model.matrix(outcome ~., data = dis_test)[,-1]
+Y_test &lt;- as.numeric (dis_test$outcome) -1
+
+dis_m3 &lt;- abess(x = X_train,
+                   y = Y_train,
+                   family = &quot;binomial&quot;, 
+                   tune.type = &quot;cv&quot;
+                   )
+
+best_dis_m3  &lt;- dis_m3 [[&quot;best.size&quot;]]
+print(best_dis_m3 )
+
+coef(dis_m3 , support.size = best_dis_m3 , sparse = FALSE)
+
+p_m3 &lt;- predict (dis_m3, type = &quot;response&quot;, newx  = X_test, support.size = best_dis_m3)
+p_m3&lt;- as.numeric (ifelse (p_m3 &gt; 0.5, 1, 0))
+
+res_m3 &lt;- performance (y_pred = p_m3,
+                       y_true = Y_test)
+
+# Lasso
+
+dis_m4 &lt;- cv.ncvreg(X_train,
+                       Y_train,
+                       penalty = &quot;lasso&quot;,
+                       family = &quot;binomial&quot;)
+plot(dis_m4)
+coef_dis_m4 &lt;- coef(dis_m4, s = &quot;lambda.min&quot;)[coef(dis_m4, s = &quot;lambda.min&quot;) != 0]
+
+p_m4 &lt;- predict (dis_m4, type = &quot;response&quot;, X  = X_test, lambda = dis_m4$lambda.min)
+p_m4&lt;- ifelse (p_m4 &gt; 0.5, 1, 0)
+
+res_m4 &lt;- performance (y_pred = p_m4,
+                       y_true = Y_test)
+
+## Refit lasso
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_dis_m4)]
+
+
+dis_m4_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+
+
+# NCVreg
+
+dis_m5 &lt;- cv.ncvreg(X_train,
+                     Y_train,
+                     type = &quot;MCP&quot;,
+                     family = &quot;binomial&quot;)
+plot(dis_m5 )
+coef_dis_m5 &lt;- coef(dis_m5, s = &quot;lambda.min&quot;)[coef(dis_m5, s = &quot;lambda.min&quot;) != 0]
+
+p_m5 &lt;- predict (dis_m5, type = &quot;response&quot;, X  = X_test, lambda = dis_m5$lambda.min)
+p_m5&lt;- ifelse (p_m5 &gt; 0.5, 1, 0)
+
+res_m5 &lt;- performance (y_pred = p_m5,
+                       y_true = Y_test)
+
+## Refit NCVreg
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_dis_m5)]
+
+
+dis_m5_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+coef(dis_m5_refit)
+
+# mboost
+
+df1 &lt;- df %&gt;%
+  mutate (outcome = factor (outcome, levels=0:1)) 
+
+dis_m6  &lt;- glmboost(outcome ~.,
+                      data = df1,
+                      control = boost_control(mstop = 1000, nu = 0.1),
+                      family = Binomial(type = c(&quot;glm&quot;))) # coefficients from Binomial(link = &quot;logit&quot;) are 1/2 
+
+# cv10f &lt;- cv(model.weights(dis_m6), type = &quot;kfold&quot;)
+
+cvm &lt;- cvrisk(dis_m6) # , folds = cv10f)
+plot (cvm)
+dis_m6 [mstop(cvm)]
+
+summary (dis_m6 [mstop(cvm)])
+
+p_m6 &lt;- predict (dis_m6, type = &quot;class&quot;, 
+                 newdata  = dis_test %&gt;% dplyr::select (-outcome))
+#p_m6&lt;- ifelse (p_m6 &gt; 0.5, 1, 0)
+
+res_m6 &lt;- performance (y_pred = p_m6,
+                       y_true = Y_test)
+
+## Refit mboost
+
+coef_dis_m6 &lt;- coef(dis_m6)
+
+X_train_refit &lt;- model.matrix(outcome ~., data = df)[,names(coef_dis_m6)]
+
+
+dis_m6_refit &lt;- glm.fit(x = X_train_refit,
+                       y = Y_train,
+                       family = binomial())
+coef(dis_m6_refit)
+
+# MARS - linear
+
+dis_m7 &lt;- earth (outcome ~.,
+                   data = df,
+                   linpreds=TRUE,
+                   glm=list(family=binomial))
+
+summary (dis_m7)
+
+p_m7 &lt;- predict (dis_m7, type = &quot;response&quot;, newdata  = dis_test %&gt;% dplyr::select (-outcome))
+p_m7&lt;- ifelse (p_m7 &gt; 0.5, 1, 0)
+
+res_m7 &lt;- performance (y_pred = p_m7,
+                       y_true = Y_test)</code></pre>
+</div>
+<div id="coef-2" class="section level2">
+<h2>Coef</h2>
+<pre class="r"><code>coef_dis1 &lt;- data.frame (variables = names (coef(dis_m1)),
+                        pval = coef(dis_m1))
+coef_dis2 &lt;- data.frame (variables = names (coef(dis_m2)),
+                        stepaic = coef(dis_m2))
+coef_dis3 &lt;- data.frame (variables = rownames (coef(dis_m3 , support.size = best_dis_m3 , sparse = FALSE)),
+                        bestsubset = coef(dis_m3 , support.size = best_dis_m3 , sparse = FALSE)[,1])
+coef_dis4 &lt;- data.frame (variables = names (coef(dis_m4, s = &quot;lambda.min&quot;)[coef(dis_m4, s = &quot;lambda.min&quot;) != 0]),
+                        lasso = coef(dis_m4, s = &quot;lambda.min&quot;)[coef(dis_m4, s = &quot;lambda.min&quot;) != 0])
+coef_dis4_refit &lt;- data.frame (variables = names (coef(dis_m4_refit)),
+                        lasso_refit = coef(dis_m4_refit))
+coef_dis5 &lt;- data.frame (variables = names (coef(dis_m5, s = &quot;lambda.min&quot;)[coef(dis_m5, s = &quot;lambda.min&quot;) != 0]),
+                        mcp = coef(dis_m5, s = &quot;lambda.min&quot;)[coef(dis_m5, s = &quot;lambda.min&quot;) != 0])
+coef_dis5_refit &lt;- data.frame (variables = names (coef(dis_m5_refit)),
+                        mcp_refit = coef(dis_m5_refit))
+coef_dis6 &lt;- data.frame (variables = names (coef(dis_m6)),
+                        mboost = coef(dis_m6))
+coef_dis6_refit &lt;- data.frame (variables = names (coef(dis_m6_refit)),
+                        mboost_refit = coef(dis_m6_refit))
+
+coef_dis7 &lt;- data.frame (variables = names (coef(dis_m7)),
+                        mars = coef(dis_m7))
+
+
+dis_predictors &lt;- data.frame(variables = colnames (X_train)) %&gt;%
+  left_join(coef_dis1, by = &quot;variables&quot;)  %&gt;%
+  left_join(coef_dis2, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_dis3, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_dis4, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_dis4_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_dis5, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_dis5_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_dis6, by = &quot;variables&quot;) %&gt;%
+  left_join(coef_dis6_refit, by = &quot;variables&quot;)%&gt;%
+  left_join(coef_dis7, by = &quot;variables&quot;) %&gt;%
+  mutate_all(~ifelse(.x == 0, NA, .x)) %&gt;%
+  mutate_if(is.numeric, round, 3) %&gt;%
+  mutate (remove = rowSums(is.na(.[,-c(1, 6, 8, 10)])),
+          keep = ifelse (remove == 0, &quot;Y&quot;, &quot;N&quot;))
+
+dis_predictors_best &lt;- dis_predictors %&gt;%
+  filter (keep == &quot;Y&quot;)</code></pre>
+</div>
+<div id="performance-2" class="section level2">
+<h2>Performance</h2>
+<pre class="r"><code>dis_res &lt;- 
+cbind(Model = c(&quot;pval&quot;, &quot;stepaic&quot;, &quot;bestsubset&quot;,  &quot;lasso&quot;, &quot;ncvreg&quot;, &quot;mboost&quot;, &quot;mars&quot;), 
+      as.data.frame(do.call(&quot;rbind&quot;, list(res_m1, res_m2, res_m3, res_m4, res_m5, res_m6, res_m7)))
+)</code></pre>
+</div>
+<div id="save-2" class="section level2">
+<h2>Save</h2>
+<pre class="r"><code>dis_all_models &lt;- list (&quot;pval&quot; = dis_m1, 
+                       &quot;stepaic&quot; = dis_m2, 
+                       &quot;bestsubset&quot; = dis_m3, 
+                       &quot;lasso&quot;= dis_m4, 
+                       &quot;lasso_refit&quot;= dis_m4_refit, 
+                       &quot;ncvreg&quot;= dis_m5,
+                       &quot;ncvreg_refit&quot;= dis_m5_refit,  
+                       &quot;mboost&quot;= dis_m6, 
+                       &quot;mboost_refit&quot;= dis_m6_refit,
+                       &quot;mars&quot;= dis_m7)
+
+dis &lt;- list (performance = dis_res,
+            predictors = dis_predictors,
+            models = dis_all_models)
+
+saveRDS(dis, &quot;output/dis_iml.RDS&quot;)</code></pre>
+</div>
+</div>
+<div id="report" class="section level1">
+<h1>Report</h1>
+<pre class="r"><code>res_np &lt;- readRDS(&quot;output/np_iml.RDS&quot;)
+res_ap &lt;- readRDS(&quot;output/ap_iml.RDS&quot;)
+res_dis &lt;- readRDS(&quot;output/dis_iml.RDS&quot;)</code></pre>
+<div id="neck-pain" class="section level2">
+<h2>Neck pain</h2>
+<pre class="r"><code>model_lvl &lt;- c(&quot;pval&quot;, &quot;pvalAdj&quot;, &quot;stepaic&quot;, 
+               &quot;bestsubset&quot;,&quot;lasso&quot;, &quot;ncvreg&quot;, &quot;mboost&quot;, &quot;mars&quot;)
+model_names &lt;- c(&quot;stepP&quot;, &quot;stepPAdj&quot;, &quot;stepAIC&quot;, 
+                 &quot;Best subset&quot;, &quot;Lasso&quot;, &quot;MCP&quot;, &quot;mboost&quot;, &quot;MuARS&quot;)
+
+outcome_lvl &lt;- c(&quot;Accuracy&quot;, &quot;Precision&quot;, &quot;Sensitivity&quot;, &quot;Specificity&quot;, &quot;AUC&quot;)
+
+df.plot &lt;- res_np$performance %&gt;%
+  pivot_longer(-Model, 
+               names_to = &quot;Outcomes&quot;,
+               values_to = &quot;val&quot;) %&gt;%
+  mutate (Model = factor (Model, model_lvl, model_names),
+          Outcomes = factor (Outcomes, outcome_lvl))
+
+
+f &lt;- ggplot (df.plot) +
+  geom_bar(aes (x = Outcomes, y = val, fill = Model),
+           stat = &quot;identity&quot;, position = &quot;dodge&quot;) + 
+  scale_fill_manual(values = c(&quot;#030303&quot;, &quot;#EE6A50&quot;, &quot;#FF0000&quot;, &quot;#000080&quot;, &quot;#00EE00&quot;, &quot;#8B3E2F&quot;, &quot;#4A4A4A&quot;, &quot;#A6A6A6&quot;)) +
+  ylim (0,1) + 
+  ylab (&quot;Value&quot;) +
+  xlab (&quot;Prediction measures&quot;) +
+  theme_cowplot() 
+
+tiff (&quot;manuscript2/fig1.tiff&quot;, width = 8, height = 3, units = &quot;in&quot;, res = 100)
+f
+dev.off()</code></pre>
+<pre class="r"><code>pred &lt;- res_np$predictors %&gt;%
+  #dplyr::select (-c(remove, keep))  %&gt;%
+  mutate_if(is.numeric, round, 3) %&gt;%
+  dplyr::select(-mcp_refit) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, c(2, 3, 4, 5, 6, 8, 9, 11)])))
+
+
+pred[nrow(pred) + 1, 1] &lt;- &quot;Number&quot;
+pred[nrow(pred), -c(1, ncol(pred))] &lt;- colSums(!is.na(pred[,-c(1, ncol(pred))]))
+
+new_names &lt;- c(&quot;Variables&quot;, &quot;P-value&quot;, &quot;P-valueAdj&quot;, &quot;Step AIC&quot;, 
+                  &quot;Best subset&quot;, &quot;Lasso&quot;, &quot;Lasso refit&quot;,
+                  &quot;Ncvreg&quot;, &quot;mboost&quot;, &quot;mboost refit&quot;, &quot;MuARS&quot;, &quot;Number&quot;)
+
+names (pred) &lt;- new_names
+
+new_variables &lt;- c(&quot;Sex - female&quot;,
+               &quot;Age (years)&quot;,
+               &quot;Employment - not working&quot;,
+               &quot;Employment - working&quot;,
+               &quot;Duration of pain (days)&quot;,
+               &quot;Time since first episode (years) - 1-5&quot;,
+               &quot;Time since first episode (years) - 5–10&quot;,
+               &quot;Time since first episode (years) - &gt;10&quot;,
+               &quot;Chronicity - chronic&quot;,
+               &quot;Baseline intensity of neck pain&quot;,
+               &quot;Baseline intensity of arm pain&quot;,
+               &quot;Baseline disability&quot;,
+               &quot;Diagnostic procedure: X-ray - yes&quot;,
+               &quot;Diagnostic procedure: MRI - yes&quot;,
+               &quot;Imaging findings: disc degeneration - yes&quot;,
+               &quot;Imaging findings: facet joint degeneration - yes&quot;,
+               &quot;Imaging findings: scoliosis - yes&quot;,
+               &quot;Imaging findings: spinal stenosis - yes&quot;,
+               &quot;Imaging findings: disc protrusion - yes&quot;,
+               &quot;Imaging findings: disc herniation - yes&quot;,
+               &quot;Pharmacological treatment: analgesics - yes&quot;,
+               &quot;Pharmacological treatment: NSAIDs - yes&quot;,
+               &quot;Pharmacological treatment: steroids - yes&quot;,
+               &quot;Pharmacological treatment: muscle relaxants - yes&quot;,
+               &quot;Pharmacological treatment: opioids - yes&quot;,
+               &quot;Pharmacological treatment: other treatments - yes&quot;,
+               &quot;Non pharmacological treatments - yes&quot;,
+               &quot;NRT&quot;,
+               &quot;Number&quot;)
+
+pred$Variables &lt;- new_variables
+# Export to word
+my_path &lt;- paste0(&quot;manuscript2/Table 2&quot;,
+                  &quot;.docx&quot;)
+
+ft &lt;- flextable(pred) %&gt;%
+  width (1, 6, unit = &quot;cm&quot;) %&gt;%
+  fontsize(size = 10) %&gt;%
+  set_caption(caption = &quot;Table 2. Beta coefficients of selected variables for the outcome of neck pain&quot;,
+              style = &quot;Table Caption&quot;)
+
+my_doc &lt;- read_docx()  %&gt;%
+  body_add_flextable(ft) %&gt;%
+  body_end_section_landscape()
+
+print (my_doc, target = my_path)</code></pre>
+<pre class="r"><code>probe &lt;- df.plot %&gt;%
+  mutate(val = round (val, 3)) %&gt;%
+  pivot_wider(names_from = Outcomes,
+              values_from = val)
+
+apply (probe[,-1], 2, range)
+
+apply (probe[,-1], 2, range) %&gt;%
+  apply(2, diff)
+
+(mean((pred$Lasso[-nrow(pred)] - pred$`Lasso refit`[-nrow(pred)])/pred$`Lasso refit`[-nrow(pred)], na.rm = TRUE)) *100
+
+
+(mean((pred$mboost[-nrow(pred)] - pred$`mboost refit`[-nrow(pred)])/pred$`mboost refit`[-nrow(pred)], na.rm = TRUE)) *100
+
+
+
+probe &lt;- pred %&gt;%
+  dplyr::select (- c(lasso, mboost, Number)) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, -c (1)]))) %&gt;%
+  filter (Number == 8) %&gt;%
+  dplyr::select (-Number) %&gt;%
+  mutate (ave = rowMeans (.[,c(4:9)], na.rm = TRUE)) %&gt;%
+  mutate (diffP = ((pval - ave)/ave) * 100,
+          diffPA = ((pvalAdj - ave)/ave) * 100) %&gt;%
+  summarize (meanP = mean (diffP),
+             meanPA = mean (diffPA))
+
+probe &lt;- pred %&gt;%
+  dplyr::select (- c(lasso_refit, mboost_refit, Number)) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, -c (1:3)]))) %&gt;%
+  mutate (Impt = ifelse ((is.na(pval) | is.na (pvalAdj)) &amp; Number == 6, 1, 0 )) %&gt;%
+  filter (Impt == 1) </code></pre>
+</div>
+<div id="arm-pain" class="section level2">
+<h2>Arm pain</h2>
+<pre class="r"><code>df.plot &lt;- res_ap$performance %&gt;%
+  pivot_longer(-Model, 
+               names_to = &quot;Outcomes&quot;,
+               values_to = &quot;val&quot;) %&gt;%
+  mutate (Model = factor (Model, model_lvl, model_names),
+          Outcomes = factor (Outcomes, outcome_lvl))
+
+
+f &lt;- ggplot (df.plot) +
+  geom_bar(aes (x = Outcomes, y = val, fill = Model),
+           stat = &quot;identity&quot;, position = &quot;dodge&quot;) + 
+  scale_fill_manual(values = c(&quot;#030303&quot;, &quot;#EE6A50&quot;, &quot;#FF0000&quot;, &quot;#000080&quot;, &quot;#00EE00&quot;, &quot;#8B3E2F&quot;, &quot;#4A4A4A&quot;, &quot;#A6A6A6&quot;)) +
+  ylim (0,1) + 
+  ylab (&quot;Value&quot;) +
+  xlab (&quot;Prediction measures&quot;) +
+  theme_cowplot() 
+
+tiff (&quot;manuscript2/fig2.tiff&quot;, width = 8, height = 3, units = &quot;in&quot;, res = 100)
+f
+dev.off()</code></pre>
+<pre class="r"><code>pred &lt;- res_ap$predictors %&gt;%
+  #dplyr::select (-c(remove, keep))  %&gt;%
+  mutate_if(is.numeric, round, 3) %&gt;%
+  dplyr::select(-mcp_refit) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, c(2, 3, 4, 5, 6, 8, 9, 11)])))
+
+pred[nrow(pred) + 1, 1] &lt;- &quot;Number&quot;
+pred[nrow(pred), -c(1, ncol(pred))] &lt;- as.integer(colSums(!is.na(pred[,-c(1, ncol(pred))])))
+
+
+names (pred) &lt;- new_names
+
+pred$Variables &lt;- new_variables
+# Export to word
+my_path &lt;- paste0(&quot;manuscript2/Table 3&quot;,
+                   &quot;.docx&quot;)
+ft &lt;- flextable(pred) %&gt;%
+  width (1, 6, unit = &quot;cm&quot;) %&gt;%
+   fontsize(size = 10) %&gt;%
+   set_caption(caption = &quot;Table 3. Beta coefficients of selected variables for the outcome of arm pain&quot;,
+               style = &quot;Table Caption&quot;)
+
+my_doc &lt;- read_docx()  %&gt;%
+   body_add_flextable(ft) %&gt;%
+   body_end_section_landscape()
+
+print (my_doc, target = my_path)</code></pre>
+<pre class="r"><code>probe &lt;- df.plot %&gt;%
+  mutate(val = round (val, 3)) %&gt;%
+  pivot_wider(names_from = Outcomes,
+              values_from = val)
+
+apply (probe[,-1], 2, range)
+
+apply (probe[,-1], 2, range) %&gt;%
+  apply(2, diff)
+
+
+(mean((pred$Lasso[-nrow(pred)] - pred$`Lasso refit`[-nrow(pred)])/pred$`Lasso refit`[-nrow(pred)], na.rm = TRUE)) *100
+
+
+(mean((pred$mboost[-nrow(pred)] - pred$`mboost refit`[-nrow(pred)])/pred$`mboost refit`[-nrow(pred)], na.rm = TRUE)) *100
+
+probe &lt;- pred %&gt;%
+  dplyr::select (- c(lasso, mboost, Number)) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, -c (1)]))) %&gt;%
+  filter (Number == 8) %&gt;%
+  dplyr::select (-Number) %&gt;%
+  mutate (ave = rowMeans (.[,c(4:9)], na.rm = TRUE)) %&gt;%
+  mutate (diffP = ((pval - ave)/ave) * 100,
+          diffPA = ((pvalAdj - ave)/ave) * 100) %&gt;%
+  summarize (meanP = mean (diffP),
+             meanPA = mean (diffPA))
+
+probe &lt;- pred %&gt;%
+  dplyr::select (- c(lasso_refit, mboost_refit, Number)) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, -c (1:3)]))) %&gt;%
+  mutate (Impt = ifelse ((is.na(pval) | is.na (pvalAdj)) &amp; Number == 6, 1, 0 )) %&gt;%
+  filter (Impt == 1) </code></pre>
+</div>
+<div id="disability-1" class="section level2">
+<h2>Disability</h2>
+<pre class="r"><code>df.plot &lt;- res_dis$performance %&gt;%
+  pivot_longer(-Model, 
+               names_to = &quot;Outcomes&quot;,
+               values_to = &quot;val&quot;) %&gt;%
+  mutate (Model = factor (Model, model_lvl, model_names),
+          Outcomes = factor (Outcomes, outcome_lvl))
+
+f &lt;- ggplot (df.plot) +
+  geom_bar(aes (x = Outcomes, y = val, fill = Model),
+           stat = &quot;identity&quot;, position = &quot;dodge&quot;) + 
+  scale_fill_manual(values = c(&quot;#030303&quot;, &quot;#EE6A50&quot;, &quot;#FF0000&quot;, &quot;#000080&quot;, &quot;#00EE00&quot;, &quot;#8B3E2F&quot;, &quot;#4A4A4A&quot;, &quot;#A6A6A6&quot;)) +
+  ylim (0,1) + 
+  ylab (&quot;Value&quot;) +
+  xlab (&quot;Prediction measures&quot;) +
+  theme_cowplot() 
+
+
+tiff (&quot;manuscript2/fig3.tiff&quot;, width = 8, height = 3, units = &quot;in&quot;, res = 100)
+f
+dev.off()</code></pre>
+<pre class="r"><code>pred &lt;- res_dis$predictors %&gt;%
+  #dplyr::select (-c(remove, keep))  %&gt;%
+  mutate_if(is.numeric, round, 3) %&gt;%
+  dplyr::select(-mcp_refit) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, c(2, 3, 4, 5, 6, 8, 9, 11)])))
+
+pred[nrow(pred) + 1, 1] &lt;- &quot;Number&quot;
+pred[nrow(pred), -c(1, ncol(pred))] &lt;- as.integer(colSums(!is.na(pred[,-c(1, ncol(pred))])))
+
+names (pred) &lt;- new_names
+
+pred$Variables &lt;- new_variables
+
+
+# Export to word
+my_path &lt;- paste0(&quot;manuscript2/Table 4&quot;,
+                  &quot;.docx&quot;)
+ft &lt;- flextable(pred) %&gt;%
+  width (1, 6, unit = &quot;cm&quot;) %&gt;%
+  fontsize(size = 10) %&gt;%
+  set_caption(caption = &quot;Table 4. Beta coefficients of selected variables for the outcome of disability&quot;,
+              style = &quot;Table Caption&quot;)
+
+my_doc &lt;- read_docx()  %&gt;%
+  body_add_flextable(ft) %&gt;%
+  body_end_section_landscape()
+
+print (my_doc, target = my_path)</code></pre>
+<pre class="r"><code>probe &lt;- df.plot %&gt;%
+  mutate(val = round (val, 3)) %&gt;%
+  pivot_wider(names_from = Outcomes,
+              values_from = val)
+
+apply (probe[,-1], 2, range)
+
+apply (probe[,-1], 2, range) %&gt;%
+  apply(2, diff)
+
+(mean((pred$Lasso[-nrow(pred)] - pred$`Lasso refit`[-nrow(pred)])/pred$`Lasso refit`[-nrow(pred)], na.rm = TRUE)) *100
+
+
+(mean((pred$mboost[-nrow(pred)] - pred$`mboost refit`[-nrow(pred)])/pred$`mboost refit`[-nrow(pred)], na.rm = TRUE)) *100
+
+probe &lt;- pred %&gt;%
+  dplyr::select (- c(lasso, mboost, Number)) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, -c (1)]))) %&gt;%
+  filter (Number == 8) %&gt;%
+  dplyr::select (-Number) %&gt;%
+  mutate (ave = rowMeans (.[,c(4:9)], na.rm = TRUE)) %&gt;%
+  mutate (diffP = ((pval - ave)/ave) * 100,
+          diffPA = ((pvalAdj - ave)/ave) * 100) %&gt;%
+  summarize (meanP = mean (diffP),
+             meanPA = mean (diffPA))
+
+probe &lt;- pred %&gt;%
+  dplyr::select (- c(lasso_refit, mboost_refit, Number)) %&gt;%
+  mutate (Number = rowSums(!is.na(.[, -c (1:3)]))) %&gt;%
+  mutate (Impt = ifelse ((is.na(pval) | is.na (pvalAdj)) &amp; Number == 6, 1, 0 )) %&gt;%
+  filter (Impt == 1) </code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="bernard-liew" />
 
+<meta name="date" content="2021-03-29" />
 
-<title>Home</title>
+<title>1-explore</title>
 
 <script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -29,6 +31,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -232,6 +237,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -239,6 +307,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -276,7 +354,9 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">1-explore</h1>
+<h4 class="author">bernard-liew</h4>
+<h4 class="date">2021-03-29</h4>
 
 </div>
 
@@ -309,7 +389,7 @@ aria-hidden="true"></span> </a>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span> 1
 </p>
@@ -343,12 +423,96 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210329code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20210329)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210329code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210329)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
@@ -412,7 +576,6 @@ Untracked files:
 
 Unstaged changes:
     Modified:   analysis/7-iml _2.Rmd
-    Modified:   analysis/index.Rmd
 
 </code></pre>
 <p>
@@ -427,150 +590,154 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
 <p>
-These are the previous versions of the repository in which changes were
-made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML
-(<code>docs/index.html</code>) files. If you’ve configured a remote Git
-repository (see <code>?wflow_git_remote</code>), click on the hyperlinks
-in the table below to view the files as they were in that past version.
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
 </p>
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-File
-</th>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-<th>
-Message
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/bernard-liew/spanish_data/7e2a3ab3d315c373f1c9c864d7f58321ba337fc1/docs/index.html" target="_blank">7e2a3ab</a>
-</td>
-<td>
-Bernard
-</td>
-<td>
-2021-11-24
-</td>
-<td>
-added site files
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/bernard-liew/spanish_data/blob/be89c8d445961a54781f3512403f64ab5e0176a0/analysis/index.Rmd" target="_blank">be89c8d</a>
-</td>
-<td>
-Bernard
-</td>
-<td>
-2021-11-24
-</td>
-<td>
-new codes
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/bernard-liew/spanish_data/f76fc162f8ad89200653af2865503bc6bb3dbef2/docs/index.html" target="_blank">f76fc16</a>
-</td>
-<td>
-Bernard
-</td>
-<td>
-2021-07-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/bernard-liew/spanish_data/blob/3ec8912876943b243fd62ce2bad7c8ac40c8ee6c/analysis/index.Rmd" target="_blank">3ec8912</a>
-</td>
-<td>
-Bernard
-</td>
-<td>
-2021-07-02
-</td>
-<td>
-updated models and build for publish
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/bernard-liew/spanish_data/3ec8912876943b243fd62ce2bad7c8ac40c8ee6c/docs/index.html" target="_blank">3ec8912</a>
-</td>
-<td>
-Bernard
-</td>
-<td>
-2021-07-02
-</td>
-<td>
-updated models and build for publish
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/bernard-liew/spanish_data/blob/560ed1d8670cd7eef8f4588d86938ccea5b3a3b9/analysis/index.Rmd" target="_blank">560ed1d</a>
-</td>
-<td>
-bernard-liew
-</td>
-<td>
-2021-03-29
-</td>
-<td>
-Start workflowr project.
-</td>
-</tr>
-</tbody>
-</table>
-</div>
 <hr>
 </div>
 </div>
 </div>
-<p>Welcome to my research website.</p>
-<p><a href="6-codesPublish.html">This code performs reporting of
-results</a></p>
-<p><a href="7-iml%20_2.html">This code performs reporting of automatic
-variable selection</a></p>
+<div id="package" class="section level1">
+<h1>Package</h1>
+<pre class="r"><code># Helper
+library (tidyverse)
+library (skimr)
+library (DataExplorer)
+library (janitor)
+library (rsample)
+
+# Import
+library (rio)
+
+# Missing
+library (VIM)
+library (naniar)
+library (mice)
+library (NADIA)
+library (arsenal)
+# Plot 
+library (cowplot)
+
+# Word
+
+library (flextable)
+library (officer)
+
+# Summary
+library (qwraps2)
+
+meanNsd_transform &lt;- function (x) {
+  
+  m &lt;- round (as.numeric (x[1]), 2)
+  s &lt;- round (as.numeric (x[2]), 2)
+
+      m_s &lt;- paste0(m, &quot;(&quot;, s, &quot;)&quot;)
+  
+    return (m_s)
+}</code></pre>
+</div>
+<div id="import" class="section level1">
+<h1>Import</h1>
+<pre class="r"><code>df &lt;- import (&quot;data/neck_pain_database_3001.xlsx&quot;, sheet = &quot;DATA&quot;)
+keys &lt;- import (&quot;data/neck_pain_database_3001.xlsx&quot;, sheet = &quot;LEGEND&quot;)</code></pre>
+</div>
+<div id="tidy" class="section level1">
+<h1>Tidy</h1>
+<div id="convert-factors" class="section level2">
+<h2>Convert factors</h2>
+<pre class="r"><code>var_as_factors &lt;- keys[[&quot;Type of variable&quot;]] == &quot;Factor&quot;
+
+df &lt;- df %&gt;%
+  mutate_if (var_as_factors, ~.x %&gt;% 
+            as.character() %&gt;% as.factor()) %&gt;% 
+  rename (imp_np = improvem_NECKpain,
+          imp_ap = improvem_ARMpain,
+          imp_dis = improvem_DISAB)</code></pre>
+</div>
+<div id="export-descriptive-data" class="section level2">
+<h2>Export descriptive data</h2>
+<pre class="r"><code>ap &lt;- df %&gt;% 
+  dplyr::select (-c(imp_np, imp_dis)) %&gt;%
+  purrr::discard(~sum(is.na(.x))/length(.x)* 100 &gt;= 50)%&gt;%
+  rename (outcome = imp_ap)
+
+df_desc &lt;- bind_cols (df[,c(2:4)], df[names (df) %in% names (ap)]) %&gt;%
+  dplyr::select (-ID)</code></pre>
+<div id="descriptives" class="section level3">
+<h3>Descriptives</h3>
+<pre class="r"><code>table1 &lt;- tableby(~., 
+                  data = df_desc,
+                  control=tableby.control(digits=2, digits.p = 3)) %&gt;%
+  as.data.frame() %&gt;%
+  filter (!term %in% c(&quot;range&quot;))%&gt;%
+  select (-c(group.term:term, variable.type, Overall)) 
+  
+table1 &lt;- table1 %&gt;%
+  mutate (Total = map (Total, meanNsd_transform)) %&gt;%
+  mutate (Total = ifelse (Total == &quot;NA(NA)&quot;, &quot;&quot;, Total)) %&gt;%
+  mutate (Total = str_remove_all(Total, &quot;\\(NA\\)&quot;))
+
+
+label_names &lt;- c(&quot;Neck pain improvement&quot;, &quot;N-Miss&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Arm pain improvement&quot;, &quot;N-Miss&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Disability improvement&quot;, &quot;N-Miss&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Sex&quot;, &quot;N-Miss&quot;, &quot;Male&quot;, &quot;Female&quot;,
+                 &quot;Age (years)&quot;, &quot;N-Miss&quot;, &quot;Mean (SD)&quot;,
+                 &quot;Employment&quot;, &quot;N-Miss&quot;, &quot;Not applicable&quot;, &quot;Not working&quot;, &quot;Working&quot;,
+                 &quot;Pain duration (days)&quot;, &quot;N-Miss&quot;, &quot;Mean(SD)&quot;,
+                 &quot;Time since first episode (years)&quot;, &quot;N-Miss&quot;, &quot;&lt;1&quot;, &quot;1-5&quot;, &quot;5-10&quot;, &quot;&gt;10&quot;,
+                 &quot;Chronicity&quot;, &quot;Acute&quot;, &quot;Chronic&quot;,
+                 &quot;Baseline neck pain&quot;, &quot;N-Miss&quot;, &quot;Mean(SD)&quot;,
+                 &quot;Baseline arm pain&quot;, &quot;N-Miss&quot;, &quot;Mean(SD)&quot;,
+                 &quot;Baseline disability&quot;, &quot;N-Miss&quot;, &quot;Mean(SD)&quot;,
+                 &quot;Xray diagnosis&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;MRI diagnosis&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Imaging findings of disc degeneration&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Imaging findings of facet degeneration&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Imaging findings of scoliosis&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Imaging findings of spinal stenosis&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Imaging findings of disc protrusion&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Imaging findings of disc herniation&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Clincal diagnosis&quot;, &quot;Disc protrusion/herniation&quot;, &quot;Spinal stenosis&quot;, &quot;Non-specific&quot;,
+                 &quot;Pharmacological:analgesics&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Pharmacological:NSAIDS&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Pharmacological:steroids&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Pharmacological:muscle relaxants&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Pharmacological:opioids&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Pharmacological:other&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Non-pharmacological treatment&quot;, &quot;No&quot;, &quot;Yes&quot;,
+                 &quot;Neruo-reflexotherapy&quot;, &quot;No&quot;, &quot;Yes&quot;
+                 )
+
+table1$label &lt;- label_names
+
+table1 &lt;- table1 %&gt;%
+  rename (Variable = label)
+
+my_path &lt;- paste0(&quot;manuscript2/table_1&quot;, 
+                  &quot;.docx&quot;)
+
+ft &lt;- flextable(table1) %&gt;%
+  autofit()
+
+my_doc &lt;- read_docx()  %&gt;% 
+  body_add_flextable(ft) 
+
+print (my_doc, target = my_path)</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+</div>
+</div>
+</div>
+</div>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
@@ -588,6 +755,8 @@ footer is added to webpages before the MathJax javascript. -->
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -620,6 +789,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

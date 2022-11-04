@@ -1,0 +1,157 @@
+---
+title: "1-explore"
+author: "bernard-liew"
+date: "2021-03-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+# Package
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+
+```{r}
+# Helper
+library (tidyverse)
+library (skimr)
+library (DataExplorer)
+library (janitor)
+library (rsample)
+
+# Import
+library (rio)
+
+# Missing
+library (VIM)
+library (naniar)
+library (mice)
+library (NADIA)
+library (arsenal)
+# Plot 
+library (cowplot)
+
+# Word
+
+library (flextable)
+library (officer)
+
+# Summary
+library (qwraps2)
+
+meanNsd_transform <- function (x) {
+  
+  m <- round (as.numeric (x[1]), 2)
+  s <- round (as.numeric (x[2]), 2)
+
+      m_s <- paste0(m, "(", s, ")")
+  
+    return (m_s)
+}
+```
+
+
+# Import
+
+```{r}
+df <- import ("data/neck_pain_database_3001.xlsx", sheet = "DATA")
+keys <- import ("data/neck_pain_database_3001.xlsx", sheet = "LEGEND")
+```
+
+# Tidy
+
+## Convert factors
+
+```{r}
+var_as_factors <- keys[["Type of variable"]] == "Factor"
+
+df <- df %>%
+  mutate_if (var_as_factors, ~.x %>% 
+            as.character() %>% as.factor()) %>% 
+  rename (imp_np = improvem_NECKpain,
+          imp_ap = improvem_ARMpain,
+          imp_dis = improvem_DISAB)
+
+```
+
+
+## Export descriptive data
+
+```{r}
+ap <- df %>% 
+  dplyr::select (-c(imp_np, imp_dis)) %>%
+  purrr::discard(~sum(is.na(.x))/length(.x)* 100 >= 50)%>%
+  rename (outcome = imp_ap)
+
+df_desc <- bind_cols (df[,c(2:4)], df[names (df) %in% names (ap)]) %>%
+  dplyr::select (-ID)
+```
+
+### Descriptives
+
+```{r}
+
+table1 <- tableby(~., 
+                  data = df_desc,
+                  control=tableby.control(digits=2, digits.p = 3)) %>%
+  as.data.frame() %>%
+  filter (!term %in% c("range"))%>%
+  select (-c(group.term:term, variable.type, Overall)) 
+  
+table1 <- table1 %>%
+  mutate (Total = map (Total, meanNsd_transform)) %>%
+  mutate (Total = ifelse (Total == "NA(NA)", "", Total)) %>%
+  mutate (Total = str_remove_all(Total, "\\(NA\\)"))
+
+
+label_names <- c("Neck pain improvement", "N-Miss", "No", "Yes",
+                 "Arm pain improvement", "N-Miss", "No", "Yes",
+                 "Disability improvement", "N-Miss", "No", "Yes",
+                 "Sex", "N-Miss", "Male", "Female",
+                 "Age (years)", "N-Miss", "Mean (SD)",
+                 "Employment", "N-Miss", "Not applicable", "Not working", "Working",
+                 "Pain duration (days)", "N-Miss", "Mean(SD)",
+                 "Time since first episode (years)", "N-Miss", "<1", "1-5", "5-10", ">10",
+                 "Chronicity", "Acute", "Chronic",
+                 "Baseline neck pain", "N-Miss", "Mean(SD)",
+                 "Baseline arm pain", "N-Miss", "Mean(SD)",
+                 "Baseline disability", "N-Miss", "Mean(SD)",
+                 "Xray diagnosis", "No", "Yes",
+                 "MRI diagnosis", "No", "Yes",
+                 "Imaging findings of disc degeneration", "No", "Yes",
+                 "Imaging findings of facet degeneration", "No", "Yes",
+                 "Imaging findings of scoliosis", "No", "Yes",
+                 "Imaging findings of spinal stenosis", "No", "Yes",
+                 "Imaging findings of disc protrusion", "No", "Yes",
+                 "Imaging findings of disc herniation", "No", "Yes",
+                 "Clincal diagnosis", "Disc protrusion/herniation", "Spinal stenosis", "Non-specific",
+                 "Pharmacological:analgesics", "No", "Yes",
+                 "Pharmacological:NSAIDS", "No", "Yes",
+                 "Pharmacological:steroids", "No", "Yes",
+                 "Pharmacological:muscle relaxants", "No", "Yes",
+                 "Pharmacological:opioids", "No", "Yes",
+                 "Pharmacological:other", "No", "Yes",
+                 "Non-pharmacological treatment", "No", "Yes",
+                 "Neruo-reflexotherapy", "No", "Yes"
+                 )
+
+table1$label <- label_names
+
+table1 <- table1 %>%
+  rename (Variable = label)
+
+my_path <- paste0("manuscript2/table_1", 
+                  ".docx")
+
+ft <- flextable(table1) %>%
+  autofit()
+
+my_doc <- read_docx()  %>% 
+  body_add_flextable(ft) 
+
+print (my_doc, target = my_path)
+```
+
